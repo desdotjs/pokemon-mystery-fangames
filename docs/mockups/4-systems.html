@@ -1,0 +1,67 @@
+<html><head><link rel="stylesheet" href="base.css"><style>
+.sys{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid #252935}
+.sys .d{font-size:11px;color:#7d8496}
+.sys.sel{background:#2b3350}
+.col{flex:1;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card{background:#1a1d24;border:1px solid #2a2e39;border-radius:8px}
+table{width:100%;border-collapse:collapse}
+td,th{padding:7px 10px;text-align:left;border-bottom:1px solid #252935}
+th{font-size:11px;color:#7d8496;font-weight:500;text-transform:uppercase;letter-spacing:.8px}
+.subt{display:flex;gap:4px}
+.mis{display:flex;gap:10px;padding:9px 12px;border-bottom:1px solid #252935;align-items:center}
+.rank{display:flex;align-items:center;gap:8px;padding:6px 12px}
+.rank .b{height:10px;border-radius:5px;background:linear-gradient(90deg,#cd7f32,#ffcf5a)}
+</style></head><body>
+<div class="top"><span class="logo">◆ SKY MAKER</span>
+<span class="tab">Map</span><span class="tab">Events</span><span class="tab">Dungeons</span><span class="tab">Starter</span><span class="tab on">Systems</span><span class="tab">Database</span><span class="tab">Assets</span>
+<span class="sp"></span><span class="btn">⤓ Export</span><span class="btn go">▶ Playtest</span></div>
+<div class="main">
+<div class="panel" style="width:290px">
+<div class="ph"><span>Built-in systems</span><span>project-wide</span></div>
+<div class="sys sel"><span class="toggle"></span><div>Shops & Services<div class="d">shops, storage, bank, vendors</div></div></div>
+<div class="sys"><span class="toggle"></span><div>Missions<div class="d">job + outlaw boards</div></div></div>
+<div class="sys"><span class="toggle"></span><div>Ranks<div class="d">points, rank-ups, unlocks</div></div></div>
+<div class="sys"><span class="toggle"></span><div>Recruitment<div class="d">roster, base camps</div></div></div>
+<div class="sys"><span class="toggle"></span><div>Belly<div class="d">hunger in dungeons</div></div></div>
+<div class="sys"><span class="toggle"></span><div>Traps</div></div>
+<div class="sys"><span class="toggle"></span><div>Statuses<div class="d">11 of 14 enabled</div></div></div>
+<div class="sys"><span class="toggle"></span><div>Weather</div></div>
+<div class="sys"><span class="toggle"></span><div>Monster Houses</div></div>
+<div class="sys"><span class="toggle off"></span><div style="color:#7d8496">IQ Skills<div class="d">off — enable later</div></div></div>
+<div class="sys"><span class="toggle off"></span><div style="color:#7d8496">Kecleon dungeon shops</div></div>
+</div>
+<div class="col">
+<div class="subt"><span class="tab on">Shops</span><span class="tab">Storage</span><span class="tab">Bank</span><span class="tab">Vendors</span></div>
+<div style="display:flex;gap:12px">
+<div class="card" style="width:230px"><div class="ph"><span>Shops</span><span>＋</span></div>
+<div class="tree"><div class="sel">General Store</div><div>Orb & Wand Shop</div><div>TM Stall</div></div>
+<div class="field"><label>Keeper NPC</label><div class="inp" style="display:flex;gap:6px;align-items:center"><span class="sprite" style="width:18px;height:18px;background:#ffd54a">S</span>Shopkeeper</div></div>
+<div class="field"><label>Placed on</label><div class="inp">Town Square · (7, 10)</div></div>
+<div class="field"><label>Sell-back rate</label><div class="inp">50%</div></div>
+<div class="field" style="margin-bottom:10px"><label>Greeting text</label><div class="inp" style="height:50px">"Welcome! Take a look!"</div></div>
+</div>
+<div class="card" style="flex:1"><div class="ph"><span>General Store · inventory</span><span>＋ item</span></div>
+<table><tr><th>Item</th><th>Price</th><th>Stock</th><th>Unlocks when</th></tr>
+<tr><td>🍎 Apple</td><td>50 P</td><td>∞</td><td>—</td></tr>
+<tr><td>🫐 Oran Berry</td><td>40 P</td><td>∞</td><td>—</td></tr>
+<tr><td>🌱 Reviver Seed</td><td>800 P</td><td>2 / day</td><td><span class="chip">Rank ≥ Silver</span></td></tr>
+<tr><td>🔮 Escape Orb</td><td>150 P</td><td>∞</td><td><span class="chip">flag grotto_cleared</span></td></tr>
+<tr><td>✨ Custom: Moon Charm</td><td>1200 P</td><td>1</td><td><span class="chip">story_ch3</span></td></tr></table></div>
+</div>
+<div style="display:flex;gap:12px">
+<div class="card" style="flex:1.4"><div class="ph"><span>Missions board · preview</span><span>＋ handwritten · ⚙ generator</span></div>
+<div class="mis"><span class="chip" style="background:#2f7d4f">JOB</span><b>Help! I'm stuck!</b><span style="color:#7d8496">Mossy Grotto B3F · rescue</span><span class="sp"></span><span>300 P + 10 pts</span></div>
+<div class="mis"><span class="chip" style="background:#2f7d4f">JOB</span><b>Deliver an Apple</b><span style="color:#7d8496">Ember Ridge B5F · deliver</span><span class="sp"></span><span>Reviver Seed</span></div>
+<div class="mis"><span class="chip" style="background:#7a2e2e">OUTLAW</span><b>Thief on the loose</b><span style="color:#7d8496">Sunken Library B7F · arrest</span><span class="sp"></span><span>1200 P + 50 pts</span></div>
+<div class="mis" style="color:#7d8496">⚙ Generator: 3 random jobs/day from 4 dungeons · rewards scale with floor</div></div>
+<div class="card" style="flex:1"><div class="ph"><span>Rank ladder</span><span>＋</span></div>
+<div class="rank"><span style="width:70px">Normal</span><div class="b" style="width:20px"></div><span style="color:#7d8496">0</span></div>
+<div class="rank"><span style="width:70px">Bronze</span><div class="b" style="width:50px"></div><span style="color:#7d8496">100</span></div>
+<div class="rank"><span style="width:70px">Silver</span><div class="b" style="width:90px"></div><span style="color:#7d8496">400</span></div>
+<div class="rank"><span style="width:70px">Gold</span><div class="b" style="width:140px"></div><span style="color:#7d8496">1600 · unlocks Peak of Echoes</span></div>
+<div class="rank" style="margin-bottom:8px"><span style="width:70px">Master</span><div class="b" style="width:200px"></div><span style="color:#7d8496">5000</span></div></div>
+</div>
+</div>
+</div>
+<div class="status"><span>Systems</span><span>9 of 11 on</span><span style="margin-left:auto">Turning a system off hides its tab and removes it from the game cleanly</span></div>
+</body></html>

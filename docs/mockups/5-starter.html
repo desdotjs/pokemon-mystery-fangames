@@ -1,0 +1,64 @@
+<html><head><link rel="stylesheet" href="base.css"><style>
+.col{flex:1;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card{background:#1a1d24;border:1px solid #2a2e39;border-radius:8px}
+.mode{display:flex;gap:10px}
+.mode>div{flex:1;padding:14px;border-radius:8px;background:#1a1d24;border:1px solid #2a2e39}
+.mode>.on{border-color:#3d5afe;background:#20264a}
+.q{padding:10px 14px;border-bottom:1px solid #252935}
+.a{display:flex;gap:8px;align-items:center;padding:5px 0 5px 18px;color:#bfc4d2}
+.n{font-size:11px;padding:1px 7px;border-radius:8px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 12px}
+.nat{background:#232733;border-radius:6px;padding:8px;display:flex;flex-direction:column;gap:6px}
+.nat .s{display:flex;gap:4px}
+.play{width:420px;background:#0e1014;border-left:1px solid #2a2e39;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.scr{width:300px;height:225px;background:#0b0d2e;border:3px solid #333;position:relative;overflow:hidden}
+</style></head><body>
+<div class="top"><span class="logo">◆ SKY MAKER</span>
+<span class="tab">Map</span><span class="tab">Events</span><span class="tab">Dungeons</span><span class="tab on">Starter</span><span class="tab">Systems</span><span class="tab">Database</span><span class="tab">Assets</span>
+<span class="sp"></span><span class="btn">⤓ Export</span><span class="btn go">▶ Take the quiz</span></div>
+<div class="main">
+<div class="col">
+<div class="mode"><div class="on"><b>◉ Personality quiz</b><div style="color:#9aa1b2;font-size:12px;margin-top:4px">Answers score natures → nature picks species</div></div>
+<div><b>○ Free choice</b><div style="color:#9aa1b2;font-size:12px;margin-top:4px">Player picks from your allowed list</div></div>
+<div><b>○ Fixed</b><div style="color:#9aa1b2;font-size:12px;margin-top:4px">You set hero + partner</div></div></div>
+<div style="display:flex;gap:12px;flex:1;min-height:0">
+<div class="card" style="flex:1.2;overflow:hidden"><div class="ph"><span>Questions (8)</span><span>＋ question</span></div>
+<div class="q"><b>1.</b> A friend is late to meet you. You…
+<div class="a">→ Wait patiently <span class="n" style="background:#2e5d3a">Calm +2</span><span class="n" style="background:#3a4a6b">Relaxed +1</span></div>
+<div class="a">→ Go looking for them <span class="n" style="background:#6b3a3a">Brave +2</span></div>
+<div class="a">→ Leave a note and go <span class="n" style="background:#5d4a2e">Quirky +2</span></div></div>
+<div class="q" style="background:#2b3350"><b>2.</b> You find a strange glowing stone. You…
+<div class="a">→ Pocket it immediately <span class="n" style="background:#6b5a2e">Jolly +2</span><span class="n" style="background:#5d4a2e">Impish +1</span></div>
+<div class="a">→ Ask someone about it <span class="n" style="background:#3a4a6b">Docile +2</span></div>
+<div class="a">→ Leave it alone <span class="n" style="background:#4a3a6b">Timid +2</span></div></div>
+<div class="q" style="color:#7d8496">3. Someone challenges you to a race…</div>
+<div class="q" style="color:#7d8496">4. It's raining on your day off…</div>
+<div class="q" style="color:#7d8496">5–8 …</div>
+<div class="field"><label>Random questions shown per run</label><div class="inp" style="width:80px">5 of 8</div></div>
+</div>
+<div class="card" style="flex:1"><div class="ph"><span>Nature → species</span><span>＋ nature</span></div>
+<div class="grid">
+<div class="nat"><b>Brave</b><div class="s"><span class="sprite" style="width:24px;height:24px;background:#ff8a65">1</span><span class="sprite" style="width:24px;height:24px;background:#e57373">2</span></div></div>
+<div class="nat"><b>Calm</b><div class="s"><span class="sprite" style="width:24px;height:24px;background:#81c784">3</span></div></div>
+<div class="nat"><b>Jolly</b><div class="s"><span class="sprite" style="width:24px;height:24px;background:#ffd54a">4</span><span class="sprite" style="width:24px;height:24px;background:#fff176">5</span></div></div>
+<div class="nat"><b>Timid</b><div class="s"><span class="sprite" style="width:24px;height:24px;background:#ce93d8">6</span></div></div>
+<div class="nat"><b>Docile</b><div class="s"><span class="sprite" style="width:24px;height:24px;background:#90caf9">7</span></div></div>
+<div class="nat"><b>Quirky</b><div class="s"><span class="sprite" style="width:24px;height:24px;background:#a1887f">8</span></div></div>
+<div class="nat"><b>Impish</b><div class="s"><span class="sprite" style="width:24px;height:24px;background:#4db6ac">9</span></div></div>
+<div class="nat"><b>Relaxed</b><div class="s"><span class="sprite" style="width:24px;height:24px;background:#b0bec5">10</span></div></div>
+</div>
+<div class="field"><label>Partner</label><div class="inp">Player picks from allowed list (excludes hero's species) ▾</div></div>
+<div class="field"><label>Naming</label><div class="inp">Hero ✓ · Partner ✓ · Team name ✓</div></div>
+<div class="field"><label>Intro text</label><div class="inp">"Welcome! Before we begin, answer honestly…"</div></div>
+</div>
+</div>
+</div>
+<div class="play"><span style="color:#7d8496;font-size:11px;letter-spacing:1px">TEST RUN</span>
+<div class="scr"><div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,#2a2f7a,#0b0d2e 70%)"></div>
+<div style="position:absolute;left:20px;right:20px;top:28px;color:#fff;font:14px/1.5 'Courier New',monospace">You find a strange glowing stone. You…</div>
+<div style="position:absolute;left:40px;right:40px;bottom:20px;background:#1d2a6b;border:2px solid #e8e8f8;border-radius:6px;color:#fff;font:13px/1.8 'Courier New',monospace;padding:6px 12px">▶ Pocket it immediately<br>&nbsp; Ask someone about it<br>&nbsp; Leave it alone</div></div>
+<div class="card" style="width:300px;padding:10px 12px;font-size:12px;color:#9aa1b2">Scores so far: Brave 2 · Calm 1 · Jolly 0 …<br>Question 2 of 5</div>
+</div>
+</div>
+<div class="status"><span>Starter setup</span><span>Mode: Quiz</span><span style="margin-left:auto">Allowed species list in Database → Characters</span></div>
+</body></html>

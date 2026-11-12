@@ -1,0 +1,11 @@
+# Never commit ROMs or anything extracted from them
+*.nds
+*.srl
+*.sav
+rom/
+roms/
+extracted/
+cache/
+node_modules/
+dist/
+.DS_Store

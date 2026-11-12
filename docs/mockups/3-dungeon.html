@@ -1,0 +1,76 @@
+<html><head><link rel="stylesheet" href="base.css"><style>
+.col{flex:1;display:flex;flex-direction:column;padding:14px;gap:12px;min-width:0}
+.card{background:#1a1d24;border:1px solid #2a2e39;border-radius:8px}
+table{width:100%;border-collapse:collapse}
+td,th{white-space:nowrap;padding:7px 10px;text-align:left;border-bottom:1px solid #252935}
+th{font-size:11px;color:#7d8496;font-weight:500;text-transform:uppercase;letter-spacing:.8px}
+tr.sel td{background:#2b3350}
+.bar{height:8px;border-radius:4px;background:#3d5afe}
+.prev{width:520px;display:flex;flex-direction:column;padding:14px;gap:10px;border-left:1px solid #2a2e39;background:#16181e}
+canvas{image-rendering:pixelated;border-radius:6px}
+.row{display:flex;align-items:center;gap:10px;padding:7px 12px;border-bottom:1px solid #252935}
+</style></head><body>
+<div class="top"><span class="logo">◆ SKY MAKER</span>
+<span class="tab">Map</span><span class="tab">Events</span><span class="tab on">Dungeons</span><span class="tab">Starter</span><span class="tab">Systems</span><span class="tab">Database</span><span class="tab">Assets</span>
+<span class="sp"></span><span class="btn">⤓ Export</span><span class="btn go">▶ Playtest dungeon</span></div>
+<div class="main">
+<div class="panel" style="width:220px">
+<div class="ph"><span>Dungeons</span><span>＋</span></div>
+<div class="tree"><div class="sel">Mossy Grotto · 5F</div><div>Ember Ridge · 12F</div><div>Sunken Library · 8F</div><div>Peak of Echoes · 20F</div></div>
+<div class="ph" style="margin-top:12px"><span>Dungeon settings</span></div>
+<div class="field"><label>Tileset</label><div class="inp">Cave (ROM) ▾</div></div>
+<div class="field"><label>BGM</label><div class="inp">♪ Track 21 (ROM) ▾</div></div>
+<div class="field"><label>Team size</label><div class="inp">3</div></div>
+<div class="field"><label>Items allowed in</label><div class="inp">Yes ▾</div></div>
+<div class="field"><label>On clear</label><div class="inp">↪ Event: grotto_cleared</div></div>
+<div class="field"><label>On fail</label><div class="inp">↪ Common: Faint → base</div></div>
+</div>
+<div class="col">
+<div class="card"><div class="ph"><span>Floor rules</span><span>＋ range</span></div>
+<table><tr><th>Floors</th><th>Layout</th><th>Rooms</th><th>Items</th><th>Traps</th><th>Weather</th><th>Monster house</th></tr>
+<tr><td>1–2</td><td>Rooms + corridors</td><td>4–6</td><td>Low</td><td>Low</td><td>Clear</td><td>0%</td></tr>
+<tr class="sel"><td>3–4</td><td>Cave</td><td>3–5</td><td>Med</td><td>Med</td><td>Fog</td><td>15%</td></tr>
+<tr><td>5</td><td>Single room · <span class="chip" style="background:#7a2e2e">BOSS</span></td><td>1</td><td>—</td><td>—</td><td>Clear</td><td>—</td></tr></table></div>
+<div style="display:flex;gap:12px">
+<div class="card" style="flex:1.3"><div class="ph"><span>Spawns · floors 3–4</span><span>＋ species</span></div>
+<table><tr><th></th><th>Species</th><th>Lv</th><th>Weight</th><th>Recruit</th></tr>
+<tr><td><span class="sprite" style="width:22px;height:22px;background:#81c784">A</span></td><td>Species A</td><td>6–8</td><td><div class="bar" style="width:110px"></div></td><td>12%</td></tr>
+<tr><td><span class="sprite" style="width:22px;height:22px;background:#64b5f6">B</span></td><td>Species B</td><td>7</td><td><div class="bar" style="width:70px"></div></td><td>8%</td></tr>
+<tr><td><span class="sprite" style="width:22px;height:22px;background:#ba68c8">C</span></td><td>Species C</td><td>8–9</td><td><div class="bar" style="width:40px"></div></td><td>5%</td></tr>
+<tr><td><span class="sprite" style="width:22px;height:22px;background:#ffb74d">D</span></td><td>Species D</td><td>9</td><td><div class="bar" style="width:18px;background:#ff7043"></div></td><td>2%</td></tr></table></div>
+<div class="card" style="flex:1"><div class="ph"><span>Items · floors 3–4</span><span>＋</span></div>
+<table><tr><th>Item</th><th>Weight</th></tr>
+<tr><td>🫐 Oran Berry</td><td><div class="bar" style="width:100px;background:#26a69a"></div></td></tr>
+<tr><td>🍎 Apple</td><td><div class="bar" style="width:80px;background:#26a69a"></div></td></tr>
+<tr><td>🌱 Reviver Seed</td><td><div class="bar" style="width:20px;background:#26a69a"></div></td></tr>
+<tr><td>🔮 Escape Orb</td><td><div class="bar" style="width:30px;background:#26a69a"></div></td></tr>
+<tr><td>💰 Money</td><td><div class="bar" style="width:60px;background:#26a69a"></div></td></tr></table></div>
+</div>
+<div class="card"><div class="ph"><span>Systems on these floors</span><span style="text-transform:none">(project toggles in Systems tab)</span></div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr)">
+<div class="row"><span class="toggle"></span>Belly</div><div class="row"><span class="toggle"></span>Traps</div><div class="row"><span class="toggle"></span>Statuses</div><div class="row"><span class="toggle"></span>Weather</div>
+<div class="row"><span class="toggle"></span>Monster houses</div><div class="row"><span class="toggle off"></span>Kecleon shop</div><div class="row"><span class="toggle"></span>Recruitment</div><div class="row"><span class="toggle"></span>IQ skills</div></div></div>
+</div>
+<div class="prev">
+<div style="display:flex;align-items:center;gap:8px"><b>Preview · B3F</b><span class="chip">seed 4417</span><span class="sp"></span><span class="btn">🎲 Reroll</span><span class="btn">▶ Walk it</span></div>
+<canvas id="d" width="56" height="40" style="width:492px;height:352px"></canvas>
+<div style="display:flex;gap:14px;font-size:12px;color:#9aa1b2;flex-wrap:wrap"><span><b style="color:#7aa3d6">■</b> floor</span><span><b style="color:#3a3f4d">■</b> wall</span><span><b style="color:#4fc3f7">■</b> water</span><span><b style="color:#ffcf5a">■</b> stairs</span><span><b style="color:#26a69a">■</b> item</span><span><b style="color:#ff7043">■</b> enemy</span><span><b style="color:#e040fb">■</b> trap</span><span><b style="color:#fff">■</b> you</span></div>
+<div class="card" style="padding:10px 12px;font-size:12px;color:#9aa1b2">5 rooms · 9 enemies · 6 items · 3 traps · fog · monster house: <span style="color:#ff7043">yes (room 4)</span></div>
+</div>
+</div>
+<div class="status"><span>Mossy Grotto</span><span>Editing floors 3–4</span><span style="margin-left:auto">Preview uses the same generator as the game</span></div>
+<script>
+Math.random=(s=>()=>(s=(s*16807)%2147483647)/2147483647)(4417);
+const c=document.getElementById('d').getContext('2d'),W=56,H=40;c.fillStyle="#3a3f4d";c.fillRect(0,0,W,H);
+const rooms=[[3,3,12,8],[22,4,10,7],[40,3,12,10],[5,24,14,11],[27,21,16,13]];
+c.fillStyle="#7aa3d6";rooms.forEach(r=>c.fillRect(...r));
+function cor(a,b){let[x1,y1]=[a[0]+a[2]/2|0,a[1]+a[3]/2|0],[x2,y2]=[b[0]+b[2]/2|0,b[1]+b[3]/2|0];c.fillRect(Math.min(x1,x2),y1,Math.abs(x2-x1)+1,1);c.fillRect(x2,Math.min(y1,y2),1,Math.abs(y2-y1)+1)}
+cor(rooms[0],rooms[1]);cor(rooms[1],rooms[2]);cor(rooms[0],rooms[3]);cor(rooms[3],rooms[4]);cor(rooms[2],rooms[4]);
+c.fillStyle="#4fc3f7";c.fillRect(30,24,5,3);c.fillRect(31,27,3,2);
+c.fillStyle="rgba(255,112,67,.18)";c.fillRect(27,21,16,13);
+function dot(col,x,y){c.fillStyle=col;c.fillRect(x,y,1,1)}
+dot("#ffcf5a",48,10);dot("#fff",8,6);
+[[12,5],[25,8],[44,6],[10,30],[38,24],[29,31]].forEach(p=>dot("#26a69a",...p));
+[[28,6],[46,9],[14,28],[36,22],[40,30],[33,29],[30,22],[41,26],[6,9]].forEach(p=>dot("#ff7043",...p));
+[[19,5],[16,33],[24,27]].forEach(p=>dot("#e040fb",...p));
+</script></body></html>

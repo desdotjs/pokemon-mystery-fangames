@@ -1,0 +1,74 @@
+<html><head><link rel="stylesheet" href="base.css"><style>
+.wrap{flex:1;display:flex;gap:0;min-height:0}
+.pages{display:flex;gap:4px;padding:10px 14px 0}
+.pg{padding:6px 14px;border-radius:6px 6px 0 0;background:#232733;color:#9aa1b2}
+.pg.on{background:#2b3350;color:#fff}
+.ed{flex:1;display:flex;flex-direction:column;border-right:1px solid #2a2e39}
+.cmds{flex:1;background:#12141a;margin:0 14px 14px;border:1px solid #2f3442;border-radius:0 6px 6px 6px;padding:8px 0;font:13px/1.9 "JetBrains Mono",Consolas,monospace}
+.cmd{padding:0 14px;white-space:nowrap}
+.cmd.sel{background:#2b3350}
+.k{color:#ffcf5a}.s{color:#9ccc65}.v{color:#90caf9}.m{color:#7d8496}
+.add{color:#5c6378}
+.side{width:300px;display:flex;flex-direction:column}
+.cond{display:flex;align-items:center;gap:8px;padding:5px 12px}
+.box{width:14px;height:14px;border:1px solid #556;border-radius:3px}.box.on{background:#3d5afe;border-color:#3d5afe}
+.pal2{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px 12px}
+.pal2 div{background:#232733;border-radius:6px;padding:7px 8px;font-size:12px}
+.preview{width:420px;background:#0e1014;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;border-left:1px solid #2a2e39}
+.ds{width:384px;height:288px;background:#5fa04e;border:3px solid #333;position:relative;image-rendering:pixelated}
+.dbox{position:absolute;left:8px;right:8px;bottom:8px;height:86px;background:#1d2a6b;border:3px solid #e8e8f8;border-radius:8px;color:#fff;font:14px/1.4 "Courier New",monospace;padding:8px 10px 8px 72px}
+.port{position:absolute;left:8px;top:8px;width:56px;height:56px;background:#ffd54a;border:2px solid #fff;display:flex;align-items:center;justify-content:center;color:#333;font:700 10px sans-serif}
+</style></head><body>
+<div class="top"><span class="logo">◆ SKY MAKER</span>
+<span class="tab">Map</span><span class="tab on">Events</span><span class="tab">Dungeons</span><span class="tab">Starter</span><span class="tab">Systems</span><span class="tab">Database</span><span class="tab">Assets</span>
+<span class="sp"></span><span class="btn">⤓ Export</span><span class="btn go">▶ Playtest from here</span></div>
+<div class="wrap">
+<div class="panel" style="width:220px">
+<div class="ph"><span>Town Square · Events</span><span>＋</span></div>
+<div class="tree"><div class="sel">● Elder</div><div>● Shopkeeper</div><div>● Board</div><div>⚡ Intro cutscene</div><div>⇥ Exit → Market Row</div></div>
+<div class="ph"><span>Common events</span><span>＋</span></div>
+<div class="tree"><div>Rank-up ceremony</div><div>Faint → wake at base</div><div>Day end</div></div>
+</div>
+<div class="ed">
+<div class="pages"><span class="pg">Page 1</span><span class="pg on">Page 2 · after quest</span><span class="pg">Page 3</span><span class="pg">＋</span></div>
+<div class="cmds">
+<div class="cmd"><span class="k">◆ Show Text</span> <span class="m">[Elder · happy]</span> <span class="s">"You're back! Did you find it?"</span></div>
+<div class="cmd"><span class="k">◆ Choice</span> <span class="s">"Yes!"</span> / <span class="s">"Not yet…"</span></div>
+<div class="cmd" style="padding-left:40px"><span class="m">: When</span> <span class="s">"Yes!"</span></div>
+<div class="cmd" style="padding-left:56px"><span class="k">◆ Conditional</span> Item <span class="v">Lost Pendant</span> in bag</div>
+<div class="cmd sel" style="padding-left:72px"><span class="k">◆ Emote</span> <span class="v">Elder</span> → ♪</div>
+<div class="cmd" style="padding-left:72px"><span class="k">◆ Take Item</span> <span class="v">Lost Pendant</span> ×1</div>
+<div class="cmd" style="padding-left:72px"><span class="k">◆ Give Item</span> <span class="v">Reviver Seed</span> ×2</div>
+<div class="cmd" style="padding-left:72px"><span class="k">◆ Set Flag</span> <span class="v">pendant_returned</span> = ON</div>
+<div class="cmd" style="padding-left:72px"><span class="k">◆ Play BGM</span> <span class="v">♪ Track 12 (ROM)</span></div>
+<div class="cmd" style="padding-left:56px"><span class="m">: Else</span></div>
+<div class="cmd" style="padding-left:72px"><span class="k">◆ Show Text</span> <span class="m">[Elder · worried]</span> <span class="s">"Hmm… check again?"</span></div>
+<div class="cmd" style="padding-left:56px"><span class="m">: End</span></div>
+<div class="cmd" style="padding-left:40px"><span class="m">: When</span> <span class="s">"Not yet…"</span></div>
+<div class="cmd" style="padding-left:56px"><span class="k">◆ Move Actor</span> <span class="v">Elder</span> → face <span class="v">player</span></div>
+<div class="cmd" style="padding-left:56px"><span class="k">◆ Show Text</span> <span class="m">[Elder · normal]</span> <span class="s">"It's in Mossy Grotto, I'm sure."</span></div>
+<div class="cmd" style="padding-left:40px"><span class="m">: End</span></div>
+<div class="cmd add">◆ <span style="opacity:.6">double-click to add command…</span></div>
+</div>
+</div>
+<div class="side">
+<div class="ph"><span>Page conditions</span></div>
+<div class="cond"><span class="box on"></span>Flag <span class="chip">quest_pendant_taken</span> is ON</div>
+<div class="cond"><span class="box"></span>Variable</div>
+<div class="cond"><span class="box"></span>Rank ≥</div>
+<div class="field"><label>Trigger</label><div class="inp">Action button ▾</div></div>
+<div class="field"><label>Sprite</label><div class="inp" style="display:flex;gap:8px;align-items:center"><span class="sprite" style="width:22px;height:22px;background:#ff8a65">E</span>Species #— (ROM) ▾</div></div>
+<div class="ph" style="margin-top:8px"><span>Add command</span></div>
+<div class="pal2"><div>💬 Text</div><div>❓ Choice</div><div>⑂ Branch</div><div>🚩 Flag</div><div>🔢 Variable</div><div>🚶 Move</div><div>⏱ Wait</div><div>🌑 Fade</div><div>🎥 Camera</div><div>♪ BGM</div><div>🔊 SFX</div><div>🚪 Transfer</div><div>⚔ Dungeon</div><div>🎒 Item</div><div>🤝 Recruit</div><div>❗ Emote</div><div>📜 Title card</div><div>↪ Common</div></div>
+</div>
+<div class="preview"><span style="color:#7d8496;font-size:11px;letter-spacing:1px">LIVE PREVIEW · SELECTED LINE</span>
+<div class="ds"><div style="position:absolute;inset:0;background:repeating-linear-gradient(90deg,#5fa04e 0 24px,#67a956 24px 48px)"></div>
+<div style="position:absolute;left:150px;top:70px;width:40px;height:40px;border-radius:50%;background:#ff8a65"></div>
+<div style="position:absolute;left:160px;top:36px;background:#fff;color:#e91e63;font:700 18px sans-serif;padding:0 6px;border-radius:8px">♪</div>
+<div style="position:absolute;left:210px;top:100px;width:36px;height:36px;border-radius:50%;background:#ce93d8"></div>
+<div class="dbox"><div class="port">PORTRAIT</div><b style="color:#ffcf5a">Elder</b><br>You're back! Did you find it?</div></div>
+<span style="color:#7d8496;font-size:12px">Portrait + sprite come from your ROM at runtime</span>
+</div>
+</div>
+<div class="status"><span>Elder · Page 2</span><span>17 commands</span><span style="margin-left:auto">Ctrl+C/V commands · Tab indent · Ctrl+Enter test this page</span></div>
+</body></html>
