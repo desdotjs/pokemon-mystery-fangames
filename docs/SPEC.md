@@ -11,6 +11,7 @@ This file is the source of truth for the AI coding agent. Read it fully before w
 1. **Editor (primary deliverable):** a complete, story-agnostic toolkit. The engine ships with **no built-in story**. The user writes everything (towns, dungeons, characters, dialogue, cutscenes, quests) with almost no code: click, paint, drag, pick from lists.
 2. **Every major PMD system built in and toggleable** per project (§8): town services, missions boards, recruitment, full dungeon mechanics, starter selection.
 3. **Player:** run a project as a playable game in the browser, with an overworld ("ground mode") and turn-based dungeon crawling.
+5. **ROM patch export (later phase, §8b):** projects that stay within the original game's limits can also be exported as a patch file (BPS/xdelta). Players apply it to their own Explorers of Sky ROM and play on a DS emulator or real hardware.
 4. **ROM-sourced assets + custom assets:** Nintendo/Chunsoft art, audio, and text come from the user's ROM, extracted in the browser. The user can also import their own PNG/OGG assets from day one. Nothing copyrighted lives in the repo or the build.
 
 ### Audience
@@ -29,6 +30,7 @@ Single user (the project owner). Optimize for her workflow: power-user shortcuts
 - **The ROM never leaves the user's machine.** Load via file picker / drag-drop, parse in a Web Worker, cache extracted assets in IndexedDB. No uploads.
 - **Project files are asset-free.** A project (`.skymaker.json` or zip) stores only IDs/references (e.g. `sprite: "monster/0025"`), plus any original art the user adds. Anyone opening it needs their own ROM.
 - **Validate the ROM** by header game code before extracting. Support US first (`C2SE`), EU (`C2SP`) second. Show a friendly error otherwise.
+- **Share patches, never ROMs.** The ROM export produces a patch file only. Never publish, upload, or commit a patched or clean ROM. Patched ROMs built locally for testing stay on the user's machine and are gitignored.
 - **Tests use synthetic fixtures** (tiny hand-built binaries), never real ROM bytes.
 - Keep tasks small; one milestone at a time; each ends with something runnable.
 
@@ -70,6 +72,10 @@ Build all HUD pieces as layout-independent components that each layout arranges.
 /apps
   /editor     # RPG-Maker-style editor (React + Pixi)
   /player     # Standalone player that loads a project + user's ROM
+/tools
+  /rom-export # Later phase (§8b): Python CLI that applies a project to the
+              # user's ROM via skytemple-files and outputs a BPS/xdelta patch.
+              # Separate program, licensed GPL-3.0 (skytemple-files is GPL-3.0).
 /docs
   formats.md  # Our notes on each file format as we implement it
 ```
@@ -281,6 +287,50 @@ Keyboard first (arrows/WASD, Z/X/Enter/Esc), gamepad via Gamepad API second.
 
 ---
 
+## 8b. ROM patch export (later phase)
+
+Two export targets share one project:
+
+| Target | Output | Runs on | Feature set |
+|---|---|---|---|
+| **Web** (primary) | Hosted player link + project file | Any browser; player loads their own ROM | Everything in this spec |
+| **ROM patch** | `.bps` / `.xdelta` patch | DS emulator (melonDS, DeSmuME) or real hardware, after the player patches their own clean US ROM | Only what the original engine can do |
+
+### How it works
+1. **Compatibility checker (in the editor).** A "ROM export" panel lints the project and lists everything that won't translate, with a link to each item. A project-level switch, **"Keep ROM-compatible"**, warns the moment you use a web-only feature.
+2. **Manifest export (in the editor).** The editor writes `export/rom-manifest.json`: maps, actors, event pages, dungeons, text, starter quiz, shop tables, custom images. It holds references and the user's own art only.
+3. **`tools/rom-export` CLI (on the user's machine).** `python -m rom_export --rom clean.nds --manifest rom-manifest.json --out build/`. It uses `skytemple-files` to write the changes into a copy of the ROM:
+   - Event command lists compile to **ExplorerScript**, then to SSB scripts.
+   - Ground maps either reuse a ROM map (BMA/BPC/BPL) or quantize painted maps into DS tile/palette limits (SkyTemple's `tilequant` approach).
+   - Dungeons go into existing dungeon slots and floor tables (`mappa_s.bin`).
+   - Text goes into `text_e.str`. Custom sprites and portraits are imported into the WAN/KAO packs.
+   - The starter quiz goes into the original personality-test data.
+4. **Patch output.** The CLI diffs the result against the clean ROM and writes `build/<project>.bps` (plus `.xdelta`). It deletes the patched ROM unless `--keep-rom` is passed for local testing.
+5. **Test.** Boot the patched ROM in melonDS with a smoke-test checklist: title screen, new game, starter flow, first map, first dungeon.
+
+### Translates to the ROM (target set; verify each during implementation)
+- Ground maps built on ROM backgrounds; painted maps within tile and palette limits.
+- Actors, event pages, and most v1 event commands (text, choices, branches, flags/vars, movement, camera, fades, BGM/SFX from the ROM, transfers, enter dungeon, items, emotes).
+- Dungeons within the available slots: floor layouts, spawns, items, traps, weather, monster houses.
+- Starter quiz questions, nature-to-species tables, fixed starters.
+- Shop inventories, missions, ranks, and recruitment rates, where the original data tables allow.
+- Custom sprites, portraits, and tiles that fit the DS formats.
+
+### Web-only (the checker flags these)
+- Turning off core systems the original engine always runs (e.g. belly, IQ), unless an existing SkyTemple ASM patch covers it.
+- Custom OGG/MP3 music (the ROM only plays SMD/SWD sequences).
+- Single-screen layout (the ROM is always dual-screen).
+- More dungeons, maps, or species than the ROM has slots for.
+- Any future web-only event commands or mechanics.
+
+### Distribution checklist (README template the export generates)
+- Requires a clean **US** Explorers of Sky ROM (game code `C2SE`).
+- Apply with Rom Patcher JS, Flips, or xdelta.
+- No ROM is included or linked.
+- Non-commercial fan project; not affiliated with Nintendo, Creatures, Game Freak, The Pokémon Company, or Spike Chunsoft.
+
+---
+
 ## 9. Milestones
 
 Each milestone ends with a demo the user can click through.
@@ -303,6 +353,11 @@ Each milestone ends with a demo the user can click through.
 | M13 | Missions + ranks | Boards, generated missions, rewards, and rank-ups work end to end |
 | M14 | Dungeon depth | Belly, traps, statuses, weather, monster houses, IQ, recruitment, Kecleon shops |
 | M15 | Layout toggle + polish | Single/dual layout switch, title screen, 3 save slots, export/import, debug overlay |
+| M16 | ROM compatibility checker | "ROM export" panel lists every web-only feature in a project; "Keep ROM-compatible" switch warns live |
+| M17 | ROM export: data | CLI applies text, starter quiz, dungeon floor tables, and shop tables; outputs a `.bps` that boots in melonDS |
+| M18 | ROM export: maps + scripts | Maps, actors, and event pages compile to ExplorerScript/SSB; a custom cutscene plays in the emulator |
+| M19 | ROM export: custom art | Custom sprites, portraits, and painted tilesets import into the ROM formats |
+| M20 | ROM export: release | Export button produces patch + README; full sandbox-slice project plays start to finish on emulator |
 
 **First playable target ("sandbox slice"):** a test project built entirely in the editor that exercises every tool: a remixed ROM town, a from-scratch map, NPCs with conditional event pages, a cutscene, a starter quiz, one 3-floor dungeon with a boss, a shop, and one mission. It is a test project, not a story.
 
@@ -334,4 +389,5 @@ Decided:
 
 Still open:
 - [x] US ROM (`C2SE`) first; EU later.
+- [x] Two export targets: web (primary) and ROM patch (later phase, M16–M20). Share patches, never ROMs.
 - [ ] Will finished games be shared publicly? This affects the license choice and the player's ROM-load screen copy.

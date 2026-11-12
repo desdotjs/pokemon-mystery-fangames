@@ -14,6 +14,6 @@ A browser-based engine and RPG Maker XP–style editor for making new Pokémon M
 - `scripts/verify/nitrofs_list.py <rom.nds>`: prints the ROM header and its internal file tree. Dev-only; used to check format assumptions.
 
 ## Status
-Pre-code. Next milestone: **M0 (scaffold) → M1 (ROM loader)**.
+Pre-code. Next milestone: **M0 (scaffold) → M1 (ROM loader)**. ROM patch export is planned for M16–M20 (see SPEC §8b).
 
 Fan project. Pokémon and Pokémon Mystery Dungeon are trademarks of Nintendo, Creatures, Game Freak and The Pokémon Company. Not affiliated with or endorsed by them.
