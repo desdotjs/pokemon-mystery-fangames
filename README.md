@@ -17,6 +17,14 @@ Read **[GETTING_STARTED.md](GETTING_STARTED.md)**: a plain-language guide to run
 - `scripts/verify/nitrofs_list.py <rom.nds>`: prints the ROM header and its internal file tree. Dev-only; used to check format assumptions.
 
 ## Status
-Pre-code. Next milestone: **M0 (scaffold) → M1 (ROM loader)**. ROM patch export is planned for M16–M20 (see SPEC §8b).
+**M0 + M1 done, M2 started.** The editor loads your ROM, shows its file system, and browses all Pokémon portraits. Other tabs are placeholders.
+
+## Run it (developers)
+```
+pnpm install
+pnpm dev        # editor at http://localhost:5173
+pnpm test       # parser tests (synthetic fixtures only)
+pnpm build      # single-file build at apps/editor/dist/index.html (runs by double-click)
+```
 
 Fan project. Pokémon and Pokémon Mystery Dungeon are trademarks of Nintendo, Creatures, Game Freak and The Pokémon Company. Not affiliated with or endorsed by them.

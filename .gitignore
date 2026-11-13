@@ -12,3 +12,4 @@ dist/
 build/
 *.bps
 *.xdelta
+node_modules/
