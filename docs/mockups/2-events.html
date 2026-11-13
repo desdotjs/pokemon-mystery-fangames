@@ -1,74 +1,131 @@
 <html><head><link rel="stylesheet" href="base.css"><style>
-.wrap{flex:1;display:flex;gap:0;min-height:0}
-.pages{display:flex;gap:4px;padding:10px 14px 0}
-.pg{padding:6px 14px;border-radius:6px 6px 0 0;background:#232733;color:#9aa1b2}
-.pg.on{background:#2b3350;color:#fff}
-.ed{flex:1;display:flex;flex-direction:column;border-right:1px solid #2a2e39}
-.cmds{flex:1;background:#12141a;margin:0 14px 14px;border:1px solid #2f3442;border-radius:0 6px 6px 6px;padding:8px 0;font:13px/1.9 "JetBrains Mono",Consolas,monospace}
-.cmd{padding:0 14px;white-space:nowrap}
-.cmd.sel{background:#2b3350}
-.k{color:#ffcf5a}.s{color:#9ccc65}.v{color:#90caf9}.m{color:#7d8496}
-.add{color:#5c6378}
-.side{width:300px;display:flex;flex-direction:column}
-.cond{display:flex;align-items:center;gap:8px;padding:5px 12px}
-.box{width:14px;height:14px;border:1px solid #556;border-radius:3px}.box.on{background:#3d5afe;border-color:#3d5afe}
-.pal2{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px 12px}
-.pal2 div{background:#232733;border-radius:6px;padding:7px 8px;font-size:12px}
-.preview{width:420px;background:#0e1014;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;border-left:1px solid #2a2e39}
-.ds{width:384px;height:288px;background:#5fa04e;border:3px solid #333;position:relative;image-rendering:pixelated}
-.dbox{position:absolute;left:8px;right:8px;bottom:8px;height:86px;background:#1d2a6b;border:3px solid #e8e8f8;border-radius:8px;color:#fff;font:14px/1.4 "Courier New",monospace;padding:8px 10px 8px 72px}
-.port{position:absolute;left:8px;top:8px;width:56px;height:56px;background:#ffd54a;border:2px solid #fff;display:flex;align-items:center;justify-content:center;color:#333;font:700 10px sans-serif}
+.canvas{flex:1;position:relative;overflow:hidden;background:#101218;background-image:radial-gradient(#252a36 1px,transparent 1px);background-size:22px 22px}
+svg.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}.world .node,.world .warn,.world .menu,.world .note2{z-index:1}
+.node{position:absolute;width:250px;background:#1c2029;border:1px solid #333a4a;border-radius:10px;box-shadow:0 6px 18px #0007;font-size:12px}
+.node.sel{border-color:#ffcf5a;box-shadow:0 0 0 2px #ffcf5a55,0 6px 18px #0007}
+.nh{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:10px 10px 0 0;font-weight:600;font-size:11px;letter-spacing:.4px;text-transform:uppercase}
+.nb{padding:9px 11px;color:#d0d4df;line-height:1.45}
+.pp{width:30px;height:30px;border-radius:6px;flex:none;display:flex;align-items:center;justify-content:center;font-size:9px;color:#222;font-weight:700}
+.sp2{display:flex;gap:9px;align-items:flex-start}
+.act{display:flex;gap:6px;align-items:center;padding:4px 11px;color:#9fb0c8;font-size:11px;border-top:1px solid #2a2f3c}
+.opt{position:relative;padding:6px 11px;border-top:1px solid #2a2f3c;display:flex;justify-content:space-between}
+.port{position:absolute;right:-7px;top:50%;margin-top:-6px;width:12px;height:12px;border-radius:50%;background:#7aa3d6;border:2px solid #101218}
+.portl{position:absolute;left:-7px;top:16px;width:12px;height:12px;border-radius:50%;background:#556;border:2px solid #101218}
+.out{position:absolute;right:-7px;bottom:12px;width:12px;height:12px;border-radius:50%;background:#7aa3d6;border:2px solid #101218}
+.passage .nh{background:#24324f;color:#a9c3ff}
+.choice .nh{background:#3d3354;color:#d5b8ff}
+.branch .nh{background:#4a3a1f;color:#ffd58a}
+.action .nh{background:#1f4135;color:#8fe0b8}
+.start .nh,.end .nh{background:#2b3040;color:#cfd4e2;border-radius:10px}
+.warn{position:absolute;background:#5a2a2a;color:#ffb4b4;font-size:11px;padding:3px 8px;border-radius:6px}
+.menu{position:absolute;z-index:3!important;background:#232733;border:1px solid #3a4054;border-radius:8px;box-shadow:0 8px 24px #000a;width:170px;font-size:12px;padding:4px 0}
+.menu div{padding:6px 12px}.menu div:hover,.menu .h{background:#2b3350}
+.mini{position:absolute;right:14px;bottom:14px;width:180px;height:110px;background:#161922ee;border:1px solid #2f3442;border-radius:8px}
+.mini i{position:absolute;background:#3d4660;border-radius:2px}
+.insp{width:320px}
+.zoom{position:absolute;left:14px;bottom:14px;display:flex;gap:4px}
+.note2{position:absolute;width:170px;background:#4a4320;color:#f3e7a6;font-size:11px;padding:8px 10px;border-radius:6px;transform:rotate(-1.5deg)}
+.ta{background:#12141a;border:1px solid #2f3442;border-radius:5px;padding:8px;color:#e6e8ee;min-height:70px;line-height:1.45}
+.tag{display:inline-block;padding:1px 7px;border-radius:8px;background:#2b3350;font-size:11px;margin-right:4px}
 </style></head><body>
 <div class="top"><span class="logo">◆ SKY MAKER</span>
 <span class="tab">Map</span><span class="tab on">Events</span><span class="tab">Dungeons</span><span class="tab">Starter</span><span class="tab">Systems</span><span class="tab">Database</span><span class="tab">Assets</span>
-<span class="sp"></span><span class="btn">⤓ Export</span><span class="btn go">▶ Playtest from here</span></div>
-<div class="wrap">
-<div class="panel" style="width:220px">
-<div class="ph"><span>Town Square · Events</span><span>＋</span></div>
-<div class="tree"><div class="sel">● Elder</div><div>● Shopkeeper</div><div>● Board</div><div>⚡ Intro cutscene</div><div>⇥ Exit → Market Row</div></div>
-<div class="ph"><span>Common events</span><span>＋</span></div>
-<div class="tree"><div>Rank-up ceremony</div><div>Faint → wake at base</div><div>Day end</div></div>
+<span class="sp"></span><span class="btn">⇄ Auto-layout</span><span class="btn">⤓ Export</span><span class="btn go">▶ Play from selected</span></div>
+<div class="main">
+<div class="panel" style="width:230px">
+<div class="ph"><span>Story graphs</span><span>＋</span></div>
+<div class="tree">
+<div>▾ 📍 Town Square</div>
+<div class="i1 sel">Elder · Lost Pendant</div>
+<div class="i1">Shopkeeper</div>
+<div class="i1">Intro cutscene</div>
+<div>▾ 📍 Hilltop Guild</div>
+<div class="i1">Guildmaster briefing</div>
+<div>▾ 🔁 Shared</div>
+<div class="i1">Rank-up ceremony</div>
+<div class="i1">Faint → wake at base</div>
+<div class="i1">Day end</div>
 </div>
-<div class="ed">
-<div class="pages"><span class="pg">Page 1</span><span class="pg on">Page 2 · after quest</span><span class="pg">Page 3</span><span class="pg">＋</span></div>
-<div class="cmds">
-<div class="cmd"><span class="k">◆ Show Text</span> <span class="m">[Elder · happy]</span> <span class="s">"You're back! Did you find it?"</span></div>
-<div class="cmd"><span class="k">◆ Choice</span> <span class="s">"Yes!"</span> / <span class="s">"Not yet…"</span></div>
-<div class="cmd" style="padding-left:40px"><span class="m">: When</span> <span class="s">"Yes!"</span></div>
-<div class="cmd" style="padding-left:56px"><span class="k">◆ Conditional</span> Item <span class="v">Lost Pendant</span> in bag</div>
-<div class="cmd sel" style="padding-left:72px"><span class="k">◆ Emote</span> <span class="v">Elder</span> → ♪</div>
-<div class="cmd" style="padding-left:72px"><span class="k">◆ Take Item</span> <span class="v">Lost Pendant</span> ×1</div>
-<div class="cmd" style="padding-left:72px"><span class="k">◆ Give Item</span> <span class="v">Reviver Seed</span> ×2</div>
-<div class="cmd" style="padding-left:72px"><span class="k">◆ Set Flag</span> <span class="v">pendant_returned</span> = ON</div>
-<div class="cmd" style="padding-left:72px"><span class="k">◆ Play BGM</span> <span class="v">♪ Track 12 (ROM)</span></div>
-<div class="cmd" style="padding-left:56px"><span class="m">: Else</span></div>
-<div class="cmd" style="padding-left:72px"><span class="k">◆ Show Text</span> <span class="m">[Elder · worried]</span> <span class="s">"Hmm… check again?"</span></div>
-<div class="cmd" style="padding-left:56px"><span class="m">: End</span></div>
-<div class="cmd" style="padding-left:40px"><span class="m">: When</span> <span class="s">"Not yet…"</span></div>
-<div class="cmd" style="padding-left:56px"><span class="k">◆ Move Actor</span> <span class="v">Elder</span> → face <span class="v">player</span></div>
-<div class="cmd" style="padding-left:56px"><span class="k">◆ Show Text</span> <span class="m">[Elder · normal]</span> <span class="s">"It's in Mossy Grotto, I'm sure."</span></div>
-<div class="cmd" style="padding-left:40px"><span class="m">: End</span></div>
-<div class="cmd add">◆ <span style="opacity:.6">double-click to add command…</span></div>
+<div class="ph" style="margin-top:12px"><span>Runs when</span></div>
+<div class="field"><label>Actor</label><div class="inp">Elder (Town Square)</div></div>
+<div class="field"><label>Trigger</label><div class="inp">Talk to (action button) ▾</div></div>
+<div class="field"><label>Only if</label><div class="inp">flag quest_pendant_taken = ON</div></div>
+<div class="field"><label>Otherwise</label><div class="inp">↪ Elder · Greeting</div></div>
+<div class="ph" style="margin-top:12px"><span>Add node</span></div>
+<div class="tree"><div>💬 Passage</div><div>❓ Choice</div><div>⑂ Branch</div><div>⚡ Action</div><div>🎲 Random</div><div>↪ Jump to graph</div><div>■ End</div></div>
+</div>
+<div class="canvas" id="cv">
+<svg class="wires" id="wires"></svg>
+<div class="world" style="position:absolute;z-index:1;left:0;top:30px;transform:scale(.7);transform-origin:0 0;width:1500px;height:1000px">
+
+<div class="node start" style="left:30px;top:250px;width:110px"><div class="nh">▶ Start<span class="out" style="bottom:7px"></span></div></div>
+
+<div class="node passage" id="n1" style="left:180px;top:190px"><div class="nh">💬 Passage <span style="margin-left:auto;opacity:.7">Elder · happy</span></div>
+<div class="nb sp2"><span class="pp" style="background:#ff8a65">ELD</span><span>You're back! Did you find my pendant?</span></div>
+<div class="act">⚡ Emote Elder → ❗</div><div class="act">⚡ Face Elder → player</div><span class="portl"></span><span class="out"></span></div>
+
+<div class="node choice" id="n2" style="left:490px;top:205px;width:210px"><div class="nh">❓ Choice</div>
+<div class="opt">Yes, here it is!<span class="port"></span></div>
+<div class="opt">Not yet…<span class="port"></span></div>
+<div class="opt">What pendant? <span class="tag">if rank ≥ Silver</span><span class="port"></span></div><span class="portl"></span></div>
+
+<div class="node branch" id="n3" style="left:740px;top:70px;width:220px"><div class="nh">⑂ Branch</div>
+<div class="nb">Bag has <b>Lost Pendant</b></div>
+<div class="opt" style="color:#8fe0b8">true<span class="port"></span></div><div class="opt" style="color:#ff9a9a">false<span class="port"></span></div><span class="portl"></span></div>
+
+<div class="node action sel" id="n4" style="left:1000px;top:20px;width:230px"><div class="nh">⚡ Action</div>
+<div class="act" style="border:0">🎒 Take Lost Pendant ×1</div><div class="act">🎁 Give Reviver Seed ×2</div><div class="act">🚩 Set pendant_returned = ON</div><div class="act">♪ Play BGM Track 12</div><span class="portl"></span><span class="out"></span></div>
+
+<div class="node passage" id="n5" style="left:1000px;top:215px;width:230px"><div class="nh">💬 Passage <span style="margin-left:auto;opacity:.7">Elder · worried</span></div>
+<div class="nb sp2"><span class="pp" style="background:#ff8a65">ELD</span><span>Hmm… check your bag again?</span></div><span class="portl"></span><span class="out"></span></div>
+
+<div class="node passage" id="n6" style="left:740px;top:330px;width:240px"><div class="nh">💬 Passage <span style="margin-left:auto;opacity:.7">Elder · normal</span></div>
+<div class="nb sp2"><span class="pp" style="background:#ff8a65">ELD</span><span>It's in [[Mossy Grotto->Grotto hint]], I'm sure of it.</span></div><span class="portl"></span><span class="out"></span></div>
+
+<div class="node end" id="n7" style="left:1080px;top:440px;width:90px"><div class="nh">■ End<span class="portl" style="top:6px"></span></div></div>
+
+<div class="warn" style="left:640px;top:440px;font-size:14px">⚠ "What pendant?" has no link</div>
+<div class="menu" style="left:660px;top:485px;font-size:15px;width:200px"><div style="color:#7d8496;font-size:11px">ADD NEXT NODE</div><div class="h">💬 Passage</div><div>❓ Choice</div><div>⑂ Branch</div><div>⚡ Action</div><div>↪ Jump to graph</div></div>
+<div class="note2" style="left:200px;top:560px;font-size:15px;width:230px">Note: Elder should sound grumpier after chapter 3.</div>
+
+</div>
+<div class="zoom"><span class="btn">－</span><span class="chip" style="padding:6px 10px">70%</span><span class="btn">＋</span><span class="btn">⤢ Fit</span></div>
+<div class="mini"><i style="left:8px;top:48px;width:14px;height:8px"></i><i style="left:30px;top:38px;width:30px;height:16px"></i><i style="left:70px;top:40px;width:24px;height:18px"></i><i style="left:104px;top:14px;width:26px;height:16px"></i><i style="left:138px;top:6px;width:28px;height:18px;background:#ffcf5a"></i><i style="left:138px;top:42px;width:28px;height:12px"></i><i style="left:104px;top:64px;width:30px;height:12px"></i><i style="left:166px;top:64px;width:10px;height:8px"></i><span style="position:absolute;inset:4px;border:1px solid #7aa3d6;border-radius:4px"></span></div>
+</div>
+<div class="panel r insp">
+<div class="ph"><span>⚡ Action node</span><span>#n4</span></div>
+<div class="field"><label>Actions (run in order)</label></div>
+<div class="tree">
+<div>🎒 Take item · Lost Pendant × 1</div>
+<div>🎁 Give item · Reviver Seed × 2</div>
+<div>🚩 Set flag · pendant_returned = ON</div>
+<div>♪ Play BGM · Track 12 (ROM)</div>
+<div style="color:#5c6378">＋ Add action…</div>
+</div>
+<div class="ph" style="margin-top:10px"><span>Then</span></div>
+<div class="field"><label>Next node</label><div class="inp">💬 Passage "Thank you! Take these…"</div></div>
+<div class="ph" style="margin-top:10px"><span>Editing a passage looks like this</span></div>
+<div class="field"><label>Speaker</label><div class="inp" style="display:flex;gap:8px;align-items:center"><span class="pp" style="background:#ff8a65;width:22px;height:22px">E</span>Elder ▾</div></div>
+<div class="field"><label>Portrait</label><div style="display:flex;gap:4px;flex-wrap:wrap"><span class="tag">Normal</span><span class="tag" style="background:#3d5afe">Happy</span><span class="tag">Worried</span><span class="tag">Angry</span><span class="tag">Sad</span><span class="tag">…</span></div></div>
+<div class="field"><label>Text</label><div class="ta">You're back! Did you find my pendant?<br><span style="color:#7d8496">Tip: type [[Choice text->Passage]] to branch</span></div></div>
+<div class="field"><label>Tags</label><div><span class="tag">chapter-1</span><span class="tag">pendant-quest</span></div></div>
 </div>
 </div>
-<div class="side">
-<div class="ph"><span>Page conditions</span></div>
-<div class="cond"><span class="box on"></span>Flag <span class="chip">quest_pendant_taken</span> is ON</div>
-<div class="cond"><span class="box"></span>Variable</div>
-<div class="cond"><span class="box"></span>Rank ≥</div>
-<div class="field"><label>Trigger</label><div class="inp">Action button ▾</div></div>
-<div class="field"><label>Sprite</label><div class="inp" style="display:flex;gap:8px;align-items:center"><span class="sprite" style="width:22px;height:22px;background:#ff8a65">E</span>Species #— (ROM) ▾</div></div>
-<div class="ph" style="margin-top:8px"><span>Add command</span></div>
-<div class="pal2"><div>💬 Text</div><div>❓ Choice</div><div>⑂ Branch</div><div>🚩 Flag</div><div>🔢 Variable</div><div>🚶 Move</div><div>⏱ Wait</div><div>🌑 Fade</div><div>🎥 Camera</div><div>♪ BGM</div><div>🔊 SFX</div><div>🚪 Transfer</div><div>⚔ Dungeon</div><div>🎒 Item</div><div>🤝 Recruit</div><div>❗ Emote</div><div>📜 Title card</div><div>↪ Common</div></div>
-</div>
-<div class="preview"><span style="color:#7d8496;font-size:11px;letter-spacing:1px">LIVE PREVIEW · SELECTED LINE</span>
-<div class="ds"><div style="position:absolute;inset:0;background:repeating-linear-gradient(90deg,#5fa04e 0 24px,#67a956 24px 48px)"></div>
-<div style="position:absolute;left:150px;top:70px;width:40px;height:40px;border-radius:50%;background:#ff8a65"></div>
-<div style="position:absolute;left:160px;top:36px;background:#fff;color:#e91e63;font:700 18px sans-serif;padding:0 6px;border-radius:8px">♪</div>
-<div style="position:absolute;left:210px;top:100px;width:36px;height:36px;border-radius:50%;background:#ce93d8"></div>
-<div class="dbox"><div class="port">PORTRAIT</div><b style="color:#ffcf5a">Elder</b><br>You're back! Did you find it?</div></div>
-<span style="color:#7d8496;font-size:12px">Portrait + sprite come from your ROM at runtime</span>
-</div>
-</div>
-<div class="status"><span>Elder · Page 2</span><span>17 commands</span><span style="margin-left:auto">Ctrl+C/V commands · Tab indent · Ctrl+Enter test this page</span></div>
-</body></html>
+<div class="status"><span>Elder · Lost Pendant</span><span>8 nodes · 9 links</span><span>1 warning</span><span style="margin-left:auto">Drag from a port to add · Right-click a node → Play from here · Ctrl+D duplicate</span></div>
+<script>
+const cv=document.getElementById('cv'),svg=document.getElementById('wires');
+function pt(el){const r=el.getBoundingClientRect(),c=cv.getBoundingClientRect();return[r.left-c.left+r.width/2,r.top-c.top+r.height/2]}
+function inPort(id){return pt(document.querySelector('#'+id+' .portl'))}
+const outs=[...document.querySelectorAll('.out,.port')];
+function wire(a,b,col){const[x1,y1]=a,[x2,y2]=b,dx=Math.max(60,(x2-x1)/2);const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',`M${x1} ${y1} C${x1+dx} ${y1} ${x2-dx} ${y2} ${x2} ${y2}`);p.setAttribute('stroke',col||'#5b7fb8');p.setAttribute('stroke-width','2');p.setAttribute('fill','none');svg.appendChild(p)}
+const startOut=pt(document.querySelector('.start .out'));
+wire(startOut,inPort('n1'));
+wire(pt(document.querySelector('#n1 .out')),inPort('n2'));
+const cp=document.querySelectorAll('#n2 .port');
+wire(pt(cp[0]),inPort('n3'));wire(pt(cp[1]),inPort('n6'));
+const bp=document.querySelectorAll('#n3 .port');
+wire(pt(bp[0]),inPort('n4'),'#3fa57a');wire(pt(bp[1]),inPort('n5'),'#c25b5b');
+wire(pt(document.querySelector('#n6 .out')),inPort('n7'));
+wire(pt(document.querySelector('#n5 .out')),inPort('n7'));
+const p3=pt(cp[2]);const d=document.createElementNS('http://www.w3.org/2000/svg','path');d.setAttribute('d',`M${p3[0]} ${p3[1]} C${p3[0]+40} ${p3[1]} ${p3[0]+20} ${p3[1]+150} ${p3[0]+40} ${p3[1]+170}`);d.setAttribute('stroke','#ffcf5a');d.setAttribute('stroke-dasharray','5 4');d.setAttribute('stroke-width','2');d.setAttribute('fill','none');svg.appendChild(d);
+</script></body></html>

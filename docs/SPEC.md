@@ -172,12 +172,37 @@ GroundMap {
 }
 
 Actor { id, characterId | species, x, y, facing, animation,
-        pages: EventPage[] }   // RPG Maker-style pages w/ conditions
+        entries: EventEntry[] }   // which story graph runs, and when
 
-EventPage { conditions: { flag?, variable?, … },
-            trigger: 'action' | 'touch' | 'auto' | 'parallel',
-            commands: Command[] }
+EventEntry { graphId, startNodeId,
+             trigger: 'action' | 'touch' | 'auto' | 'parallel',
+             conditions: { flag?, variable?, minRank?, … } }
+             // first entry whose conditions pass wins (replaces RPG Maker "pages")
 
+StoryGraph {               // Twine-style: one canvas of connected nodes
+  id, name, folder?,
+  nodes: Node[], edges: Edge[],
+  notes?: StickyNote[]     // free-floating comments on the canvas
+}
+
+Node { id, x, y, color?, tags?, ...one of:
+  | { kind: 'passage', speaker: CharacterRef | null, emotion, text,  // Twine passage
+      actions: Action[] }                 // run before the text shows (move, emote, fade…)
+  | { kind: 'choice', prompt?, options: { id, label, showIf? }[] }   // one out-port per option
+  | { kind: 'branch', condition }          // out-ports: true / false
+  | { kind: 'switch', variable, cases }    // out-port per case + default
+  | { kind: 'action', actions: Action[] }  // no text: cutscene beats, give item, set flag…
+  | { kind: 'random', weights }            // out-port per weight
+  | { kind: 'jump', graphId, nodeId }      // go to another graph (reusable scenes)
+  | { kind: 'start' } | { kind: 'end' }
+}
+
+Edge { from: { node, port }, to: node }
+```
+
+`Action` = the same small JSON action set listed below (`{ type: 'moveActor', … }`). Graphs are data. Dungeon hooks (`onClear`, `onFail`, boss encounters) also point at a `graphId + startNodeId`.
+
+```ts
 Dungeon {
   id, name, floors: number, tilesetRef, bgm,
   floorRules: { from, to, layout: 'rooms'|'cave'|'single'|…,
@@ -185,7 +210,7 @@ Dungeon {
                 spawns: { species, level, weight }[],
                 items: { itemId, weight }[] }[],
   bossFloor?: { floor, encounterEventId },
-  onClear: Command[], onFail: Command[]
+  onClear: GraphRef, onFail: GraphRef
 }
 
 Character { id, displayName, species | customSpriteRef, portraitSet, defaultFacing }
@@ -211,23 +236,36 @@ Mission { id, board: 'job' | 'outlaw', title, clientCharacterId,
 // plus MissionGenerator rules for auto-generated daily missions
 ```
 
-### Event commands (v1 set)
-Show Text (speaker, portrait emotion, text) · Choice · Conditional Branch · Set Flag / Variable · Move Actor (path or to tile) · Face · Play Animation · Wait · Fade In/Out · Screen Shake · Camera Pan/Follow · Play/Stop BGM · Play SFX · Transfer Map · Enter Dungeon · Give/Take Item · Recruit Pokémon · Call Common Event · Emote bubble (!, ?, ♪) · Show Title Card.
+### Node types and actions (v1 set)
+**Flow (nodes):** Passage (speaker, portrait emotion, text) · Choice · Branch (if/else) · Switch · Random · Action · Jump to graph · Start · End.
 
-Commands are plain JSON objects (`{ type: 'showText', … }`) run by one interpreter in the engine. Editor renders each type with a form — **no scripting required**. (Optional later: an "Advanced" raw-JSON or tiny script command.)
+**Actions (inside Passage/Action nodes):** Set Flag / Variable · Move Actor (path or to tile) · Face · Play Animation · Wait · Fade In/Out · Screen Shake · Camera Pan/Follow · Play/Stop BGM · Play SFX · Transfer Map · Enter Dungeon · Give/Take Item · Recruit Pokémon · Emote bubble (!, ?, ♪) · Show Title Card.
+
+One interpreter in the engine walks the graph: run the node's actions, show its text, follow the chosen or matching edge. **No scripting required.** (Optional later: an "Advanced" expression field on Branch nodes.)
+
+**Twine-style text shortcuts** (optional, typed inside a passage, turned into real nodes and edges on blur): `[[Option text->Target passage]]` creates a choice and links it; `[[Target passage]]` links straight through. Lets you write fast in prose and tidy the graph later.
 
 ---
 
 ## 7. Editor (`apps/editor`)
 
-RPG Maker XP mental model: **map list on the left, canvas in the middle, palette/inspector on the right, toolbar on top.**
+RPG Maker XP mental model for maps (**list on the left, canvas in the middle, palette/inspector on the right, toolbar on top**); Twine mental model for dialogue and events (node graph).
 
 ### Modes
 1. **Map Mode** offers two ways to build:
    - **From a ROM map:** pick any original ground map (Treasure Town, the guild, beaches, etc.) as the base. Edit collision, place exits, and optionally paint extra tile layers on top.
    - **From scratch:** paint with tiles sliced from ROM map tilesets (BPC chunks) or custom tilesets, using layers (ground, detail, overhead), collision, and exits.
    - Either way, the result is the same `GroundMap` type.
-2. **Event Mode:** click a tile to create or edit an actor or trigger. The event page editor uses an **RPG Maker XP–style command list**: add, reorder, indent for branches, and double-click to edit a command's form. This is the only cutscene authoring tool for v1.
+2. **Event Mode (node graph, Twine-style):** click a tile to create or edit an actor or trigger, then open its **story graph**:
+   - Infinite canvas with pan/zoom and a minimap. Passages are cards showing speaker portrait + text preview; choices show one output port per option.
+   - Drag from a port to empty space → pick the next node type from a menu (fastest way to write branching dialogue).
+   - Inspector on the right edits the selected node (speaker, emotion, text, actions, conditions).
+   - Graph list on the left: per-map graphs plus shared graphs (old "common events": rank-up ceremony, fainting, day end), grouped in folders.
+   - **Play from here:** right-click any node to playtest starting at it, with flags/vars pre-set from a picker.
+   - Highlights: unreachable nodes, dead ends that aren't an End node, and choice options with no link.
+   - Copy/paste nodes across graphs; group selection into a "Jump" subgraph.
+   - Auto-layout button (left-to-right) for tidying.
+   This is the only event/cutscene authoring tool for v1. Canvas library: **React Flow** (`@xyflow/react`).
 3. **Dungeon Designer:** a floor-range table and spawn/item/trap tables, with searchable species and item pickers that show sprite thumbnails. Each system toggle (weather, monster houses, etc.) gets per-floor settings. A **Preview floor** button generates a random floor live.
 4. **Starter Setup:** pick the mode (quiz, free choice, or fixed). The quiz editor holds questions, answers, nature scores, a nature-to-species table, and intro/result text. Includes a "Take the quiz" test button.
 5. **Systems panel:** on/off switches for every built-in system. Each enabled system unlocks its own editor tab:
@@ -253,7 +291,7 @@ RPG Maker XP mental model: **map list on the left, canvas in the middle, palette
 ### Ground mode
 - Tile collision movement, 8-directional, PMD walk speed feel.
 - Interact (A / Enter / Space), dialogue box with portrait + typewriter text + per-character blip.
-- Event interpreter with blocking/non-blocking commands; parallel events.
+- Graph interpreter: walks nodes, runs blocking/non-blocking actions, waits for choices; parallel graphs for ambient NPC behaviour.
 - Map transitions with fade.
 
 ### Dungeon mode: core (always on)
@@ -306,7 +344,7 @@ Two export targets share one project:
 1. **Compatibility checker (in the editor).** A "ROM export" panel lints the project and lists everything that won't translate, with a link to each item. A project-level switch, **"Keep ROM-compatible"**, warns the moment you use a web-only feature.
 2. **Manifest export (in the editor).** The editor writes `export/rom-manifest.json`: maps, actors, event pages, dungeons, text, starter quiz, shop tables, custom images. It holds references and the user's own art only.
 3. **`tools/rom-export` CLI (on the user's machine).** `python -m rom_export --rom clean.nds --manifest rom-manifest.json --out build/`. It uses `skytemple-files` to write the changes into a copy of the ROM:
-   - Event command lists compile to **ExplorerScript**, then to SSB scripts.
+   - Story graphs compile to **ExplorerScript** (each node becomes a label; edges become jumps, choices become menus, branches become `if`), then to SSB scripts.
    - Ground maps either reuse a ROM map (BMA/BPC/BPL) or quantize painted maps into DS tile/palette limits (SkyTemple's `tilequant` approach).
    - Dungeons go into existing dungeon slots and floor tables (`mappa_s.bin`).
    - Text goes into `text_e.str`. Custom sprites and portraits are imported into the WAN/KAO packs.
@@ -316,7 +354,7 @@ Two export targets share one project:
 
 ### Translates to the ROM (target set; verify each during implementation)
 - Ground maps built on ROM backgrounds; painted maps within tile and palette limits.
-- Actors, event pages, and most v1 event commands (text, choices, branches, flags/vars, movement, camera, fades, BGM/SFX from the ROM, transfers, enter dungeon, items, emotes).
+- Actors, story graphs, and most v1 nodes/actions (passages, choices, branches, switches, flags/vars, movement, camera, fades, BGM/SFX from the ROM, transfers, enter dungeon, items, emotes). Random nodes map to the engine's RNG if available; otherwise the checker flags them.
 - Dungeons within the available slots: floor layouts, spawns, items, traps, weather, monster houses.
 - Starter quiz questions, nature-to-species tables, fixed starters.
 - Shop inventories, missions, ranks, and recruitment rates, where the original data tables allow.
@@ -327,7 +365,7 @@ Two export targets share one project:
 - Custom OGG/MP3 music (the ROM only plays SMD/SWD sequences).
 - Single-screen layout (the ROM is always dual-screen).
 - More dungeons, maps, or species than the ROM has slots for.
-- Any future web-only event commands or mechanics.
+- Any future web-only node types, actions, or mechanics.
 
 ### Distribution checklist (README template the export generates)
 - Requires a clean **US** Explorers of Sky ROM (game code `C2SE`).
@@ -349,7 +387,7 @@ Each milestone ends with a demo the user can click through.
 | M3 | Ground maps | Pick any ROM town BG and render it with palette animation |
 | M4 | Map editor | Paint collision, place actors, save/load project |
 | M5 | Ground runtime | Walk around a custom map, talk to an NPC with portrait dialogue |
-| M6 | Event system | Full v1 command set + page conditions; a 2-minute cutscene works end to end |
+| M6 | Story graphs | Node editor (React Flow) with all v1 node types + actions, entry conditions, play-from-node; a branching 2-minute cutscene works end to end |
 | M7 | Dungeon gen | Dungeon Designer previews random floors with ROM tilesets |
 | M8 | Dungeon play | Fight through 3 floors with a partner, items, stairs, boss event |
 | M9 | Music | SMD/SWD playback (or fallback) on maps and dungeons |
@@ -385,7 +423,7 @@ Each milestone ends with a demo the user can click through.
 Decided:
 - [x] No built-in story; the editor is a story-agnostic toolkit.
 - [x] Maps can come from a ROM base or be painted from scratch.
-- [x] Cutscenes are authored as RPG Maker–style command lists.
+- [x] Dialogue and events are authored as **Twine-style node graphs** (changed from RPG Maker command lists).
 - [x] All PMD systems are built in and toggleable per project.
 - [x] Single user (the project owner).
 - [x] Starter mode is chosen per project (quiz, free choice, or fixed).
