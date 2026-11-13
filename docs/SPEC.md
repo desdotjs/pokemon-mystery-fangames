@@ -59,6 +59,12 @@ Build all HUD pieces as layout-independent components that each layout arranges.
 
 **Platform:** browser only. Projects autosave to IndexedDB. Exports are `.zip`. In Chromium, optionally offer "Save to folder" via the File System Access API for real on-disk backups.
 
+**Distribution for non-technical users** (see `GETTING_STARTED.md`; keep it in sync):
+- **Hosted:** deploy the built app to GitHub Pages. It must be an installable PWA (manifest + service worker) so it works offline after the first visit.
+- **Download:** each GitHub Release attaches `SkyMaker-vX.X.zip`. It contains `Sky Maker.html` that runs by **double-clicking**, with no server and no install. Build it as a self-contained file (e.g. `vite-plugin-singlefile`) with Web Workers inlined as Blob URLs. It must work from `file://` in Chrome and Edge, including IndexedDB.
+- Supported browsers: latest Chrome and Edge. Others are best-effort.
+- No command line is ever required for players or creators. The ROM export CLI (§8b) is the one exception, and it gets a double-click launcher too (M20).
+
 ---
 
 ## 4. Repo layout
@@ -352,7 +358,7 @@ Each milestone ends with a demo the user can click through.
 | M12 | Town systems | Shops, storage, bank, and vendors, each toggleable and attached to NPCs |
 | M13 | Missions + ranks | Boards, generated missions, rewards, and rank-ups work end to end |
 | M14 | Dungeon depth | Belly, traps, statuses, weather, monster houses, IQ, recruitment, Kecleon shops |
-| M15 | Layout toggle + polish | Single/dual layout switch, title screen, 3 save slots, export/import, debug overlay |
+| M15 | Layout toggle + polish + release | Single/dual layout switch, title screen, 3 save slots, export/import, debug overlay. GitHub Pages PWA deploy and a double-click `Sky Maker.html` release zip, both following `GETTING_STARTED.md` |
 | M16 | ROM compatibility checker | "ROM export" panel lists every web-only feature in a project; "Keep ROM-compatible" switch warns live |
 | M17 | ROM export: data | CLI applies text, starter quiz, dungeon floor tables, and shop tables; outputs a `.bps` that boots in melonDS |
 | M18 | ROM export: maps + scripts | Maps, actors, and event pages compile to ExplorerScript/SSB; a custom cutscene plays in the emulator |

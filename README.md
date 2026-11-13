@@ -6,6 +6,9 @@ A browser-based engine and RPG Maker XP–style editor for making new Pokémon M
 - The ROM never leaves your machine. Assets are extracted locally and cached in your browser.
 - **This repo contains no ROM and no ROM-derived assets.** You need your own copy of the game to use it.
 
+## New here?
+Read **[GETTING_STARTED.md](GETTING_STARTED.md)**: a plain-language guide to running Sky Maker, making a game, and playing shared games. No coding needed.
+
 ## Docs
 - [`docs/SPEC.md`](docs/SPEC.md): the full build spec and milestones (start here)
 - [`docs/mockups/`](docs/mockups/): editor UI mockups (HTML source + PNGs in `png/`)
