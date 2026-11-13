@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { slotName, type RomDir } from "@sky/rom";
-import type { PortraitEntry } from "../rom.worker";
+import type { PortraitEntry } from "../romApi";
 import { portraitImage } from "../romClient";
 
 type View = "portraits" | "files";

@@ -29,3 +29,4 @@ Findings recorded while implementing parsers. Reference used for each: SkyTemple
 ## Browser gotchas
 - **IndexedDB value limit:** Chrome rejects a single value over ~127 MB. The ROM is 128 MB, so store it as a `Blob`, not an `ArrayBuffer`.
 - **Workers from `file://`:** module workers created from Blob URLs fail when the page is opened by double-click. Build workers as classic (`worker.format: "iife"`).
+- **Loader must never hang:** some browsers/preview windows block workers or IndexedDB, or leave requests pending forever. The editor pings the worker (4 s) and falls back to the main thread, puts timeouts on every storage call, never blocks loading on saving, and accepts a dropped ROM even while it's still checking for a saved one.

@@ -1,12 +1,12 @@
 import { useRef, useState } from "react";
 
-export function RomDrop(props: { busy: boolean; error: string | null; onFile: (buf: ArrayBuffer) => void }) {
+export function RomDrop(props: { busy: boolean; checking: boolean; error: string | null; onFile: (file: File) => void }) {
   const input = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
 
-  async function take(file: File | undefined) {
+  function take(file: File | undefined) {
     if (!file || props.busy) return;
-    props.onFile(await file.arrayBuffer());
+    props.onFile(file);
   }
 
   return (
@@ -35,6 +35,7 @@ export function RomDrop(props: { busy: boolean; error: string | null; onFile: (b
         ) : (
           <>
             <h2>Load your Explorers of Sky ROM</h2>
+            {props.checking && <p className="muted small">Checking for a ROM you loaded before…</p>}
             <p>Drag your <code>.nds</code> file here, or click to choose it.</p>
             <p className="muted">
               Sky Maker uses the sprites, portraits and music from your own copy of the game.

@@ -1,7 +1,6 @@
-import * as Comlink from "comlink";
 import { useEffect, useState } from "react";
-import { rom, saveRom, loadSavedRom, forgetRom } from "./romClient";
-import type { LoadResult } from "./rom.worker";
+import { saveRom, loadSavedRom, forgetRom, loadRom, TimeoutError } from "./romClient";
+import type { LoadResult } from "./romApi";
 import { RomDrop } from "./components/RomDrop";
 import { AssetBrowser } from "./components/AssetBrowser";
 
@@ -24,23 +23,32 @@ export function App() {
   const [info, setInfo] = useState<Loaded | null>(null);
   const [tab, setTab] = useState<TabId>("assets");
 
-  async function open(buf: ArrayBuffer, remember: boolean) {
+  async function open(file: Blob, fromSaved: boolean) {
     setState("loading");
     setError(null);
-    if (remember) await saveRom(buf);
-    const res = await rom.load(Comlink.transfer(buf, [buf]));
-    if (res.ok) {
-      setInfo(res);
-      setState("ready");
-    } else {
-      if (!remember) await forgetRom();
+    try {
+      const res = await loadRom(file);
+      if (res.ok) {
+        if (!fromSaved) saveRom(file);
+        setInfo(res);
+        setState("ready");
+        return;
+      }
       setError(res.error);
-      setState("need-rom");
+    } catch (e) {
+      console.error("[sky-maker]", e);
+      setError(
+        e instanceof TimeoutError
+          ? `Reading your ROM took too long (${e.message}). Try opening Sky Maker in Google Chrome or Microsoft Edge, then drop the ROM again.`
+          : `Something went wrong reading your ROM: ${e instanceof Error ? e.message : String(e)}`,
+      );
     }
+    if (fromSaved) await forgetRom();
+    setState("need-rom");
   }
 
   useEffect(() => {
-    loadSavedRom().then((buf) => (buf ? open(buf, false) : setState("need-rom")));
+    loadSavedRom().then((blob) => (blob ? open(blob, true) : setState("need-rom")));
   }, []);
 
   async function unload() {
@@ -49,7 +57,7 @@ export function App() {
   }
 
   if (state !== "ready" || !info) {
-    return <RomDrop busy={state === "loading" || state === "checking"} error={error} onFile={(b) => open(b, true)} />;
+    return <RomDrop busy={state === "loading"} checking={state === "checking"} error={error} onFile={(f) => open(f, false)} />;
   }
 
   const current = TABS.find((t) => t.id === tab)!;
