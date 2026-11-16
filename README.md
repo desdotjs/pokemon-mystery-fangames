@@ -17,13 +17,16 @@ Read **[GETTING_STARTED.md](GETTING_STARTED.md)**: a plain-language guide to run
 - `scripts/verify/nitrofs_list.py <rom.nds>`: prints the ROM header and its internal file tree. Dev-only; used to check format assumptions.
 
 ## Status
-**M0 + M1 done, M2 started.** The editor loads your ROM, shows its file system, and browses all Pokémon portraits. Other tabs are placeholders.
+- **M0 + M1 done:** load your ROM, browse its file system.
+- **M2 started:** browse all Pokémon portraits.
+- **M6 (story graphs) first version:** Twine-style node editor in the **Events** tab: passages with ROM portraits and expressions, choices (with "only show if"), branches, actions, random paths, warnings, undo/redo, autosave, export/import, and **Play from here** with editable flags/items.
+- Not yet: maps, sprites, dungeons, music, linking graphs to NPCs on a map, Twine `[[link]]` shortcuts.
 
 ## Run it (developers)
 ```
 pnpm install
 pnpm dev        # editor at http://localhost:5173
-pnpm test       # parser tests (synthetic fixtures only)
+pnpm test       # parser, schema and story-runner tests (synthetic fixtures only)
 pnpm build      # single-file build at apps/editor/dist/index.html (runs by double-click)
 ```
 

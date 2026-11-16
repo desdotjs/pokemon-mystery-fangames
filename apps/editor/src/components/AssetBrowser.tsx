@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { slotName, type RomDir } from "@sky/rom";
 import type { PortraitEntry } from "../romApi";
-import { portraitImage } from "../romClient";
+import { PortraitCanvas } from "./PortraitCanvas";
 
 type View = "portraits" | "files";
 
@@ -30,28 +30,6 @@ export function AssetBrowser(props: { tree: RomDir; portraits: PortraitEntry[] }
 function faceCount(slots: number[]): string {
   const n = slots.filter((s) => !(s & 1)).length;
   return n === 1 ? "1 face" : `${n} faces`;
-}
-
-function PortraitCanvas(props: { entry: number; slot: number; size: number }) {
-  const ref = useRef<HTMLCanvasElement>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current!;
-    const io = new IntersectionObserver(([e]) => e?.isIntersecting && setVisible(true), { rootMargin: "200px" });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-  useEffect(() => {
-    if (!visible) return;
-    let live = true;
-    portraitImage(props.entry, props.slot).then((img) => {
-      if (live && img && ref.current) ref.current.getContext("2d")!.putImageData(img, 0, 0);
-    });
-    return () => {
-      live = false;
-    };
-  }, [visible, props.entry, props.slot]);
-  return <canvas ref={ref} width={40} height={40} className="pixel" style={{ width: props.size, height: props.size }} />;
 }
 
 function Portraits(props: { list: PortraitEntry[] }) {

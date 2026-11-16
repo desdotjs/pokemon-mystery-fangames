@@ -3,12 +3,15 @@ import { saveRom, loadSavedRom, forgetRom, loadRom, TimeoutError } from "./romCl
 import type { LoadResult } from "./romApi";
 import { RomDrop } from "./components/RomDrop";
 import { AssetBrowser } from "./components/AssetBrowser";
+import { EventsEditor } from "./components/events/EventsEditor";
+import { useAssets } from "./assetStore";
+import { useProject } from "./projectStore";
 
 type Loaded = Extract<LoadResult, { ok: true }>;
 
 const TABS = [
   { id: "map", label: "Map", milestone: "M3–M4" },
-  { id: "events", label: "Events", milestone: "M5–M6" },
+  { id: "events", label: "Events", milestone: "" },
   { id: "dungeons", label: "Dungeons", milestone: "M7–M8" },
   { id: "starter", label: "Starter", milestone: "M11" },
   { id: "systems", label: "Systems", milestone: "M12–M14" },
@@ -21,7 +24,22 @@ export function App() {
   const [state, setState] = useState<"checking" | "need-rom" | "loading" | "ready">("checking");
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<Loaded | null>(null);
-  const [tab, setTab] = useState<TabId>("assets");
+  const [tab, setTab] = useState<TabId>(() => {
+    try {
+      return (localStorage.getItem("sky-maker/tab") as TabId) || "events";
+    } catch {
+      return "events";
+    }
+  });
+  const projectLoaded = useProject((s) => s.loaded);
+
+  useEffect(() => {
+    try { localStorage.setItem("sky-maker/tab", tab); } catch { /* ignore */ }
+  }, [tab]);
+
+  useEffect(() => {
+    useProject.getState().load();
+  }, []);
 
   async function open(file: Blob, fromSaved: boolean) {
     setState("loading");
@@ -30,6 +48,7 @@ export function App() {
       const res = await loadRom(file);
       if (res.ok) {
         if (!fromSaved) saveRom(file);
+        useAssets.getState().setPortraits(res.portraits);
         setInfo(res);
         setState("ready");
         return;
@@ -56,7 +75,7 @@ export function App() {
     location.reload();
   }
 
-  if (state !== "ready" || !info) {
+  if (state !== "ready" || !info || !projectLoaded) {
     return <RomDrop busy={state === "loading"} checking={state === "checking"} error={error} onFile={(f) => open(f, false)} />;
   }
 
@@ -80,6 +99,8 @@ export function App() {
       <main className="main">
         {tab === "assets" ? (
           <AssetBrowser tree={info.tree} portraits={info.portraits} />
+        ) : tab === "events" ? (
+          <EventsEditor />
         ) : (
           <div className="soon">
             <div className="soon-card">
