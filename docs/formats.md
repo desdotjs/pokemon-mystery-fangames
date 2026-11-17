@@ -26,6 +26,13 @@ Findings recorded while implementing parsers. Reference used for each: SkyTemple
 - Encoding: Windows-1252, except `0xBD` = ♂ and `0xBE` = ♀. Strings can contain `[tag]` control codes (not handled yet).
 - US: 18,451 strings. Pokémon names are indices 8734–9333, indexed by monster ID (ID 0 is a placeholder).
 
+## Text fonts (`FONT/kanji.dat`, `kanji_b.dat`, `unknown.dat`) — `packages/rom/src/font.ts`
+- SIR0-wrapped. SIR0 header: magic, `u32` content-header pointer, `u32` pointer-list pointer. Pointers are file-absolute.
+- Content header: `u32` entry count, `u32` entries pointer. Entry (12 bytes): `u32` glyph pointer, `u8` char, `u8` table, `u32` width, `u8` category, `u8` padding.
+- Glyph: 12×12, 4bpp, low nibble first (72 bytes). Table 0 = single-byte chars 0x20–0xFF (Windows-1252 except 0xBD ♂, 0xBE ♀). Table 0x81 holds a few Shift-JIS symbols: 0x60 ～, 0xA8 →, 0xA9 ←, 0xAA ↑, 0xAB ↓, 0xF4 ♪.
+- `kanji.dat` = dialogue/menu font (single ink value 15, width already includes 1 px spacing). `kanji_b.dat` = bold title font, shading levels 1–15 drawn through the light gray ramp in `FONT/b_pal2.bin`; its width field is the 12 px box, so use the ink width + 1. Its 0xA0–0xDF range holds katakana (no ♂/♀). `unknown.dat` = Unown alphabet.
+- Dialogue box text area ≈ 232 px wide, 3 lines per box (line height 15 px in our renderer).
+
 ## Browser gotchas
 - **IndexedDB value limit:** Chrome rejects a single value over ~127 MB. The ROM is 128 MB, so store it as a `Blob`, not an `ArrayBuffer`.
 - **Workers from `file://`:** module workers created from Blob URLs fail when the page is opened by double-click. Build workers as classic (`worker.format: "iife"`).

@@ -49,6 +49,7 @@ export function App() {
       if (res.ok) {
         if (!fromSaved) saveRom(file);
         useAssets.getState().setPortraits(res.portraits);
+        useAssets.getState().setFonts(res.fonts);
         setInfo(res);
         setState("ready");
         return;

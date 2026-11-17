@@ -181,3 +181,22 @@ code { background: #232733; padding: 1px 5px; border-radius: 4px; }
 .st-ed { padding: 0 12px; display: flex; flex-direction: column; gap: 6px; }
 .st-row { font-size: 12px; }
 @media (max-width: 900px) { .pt-body { flex-direction: column; } .pt-side { width: auto; border-left: 0; } }
+
+/* DS-style playtest screen (positions are set inline in native px × 2) */
+.pt-screen { aspect-ratio: auto; max-width: none; }
+.pt-frame { position: absolute; background: #182a7ef0; border: 2px solid #e8ecff; border-radius: 6px; box-shadow: inset 0 0 0 2px #0c1550, 0 2px 0 #0008; cursor: pointer; }
+.pt-portrait-wrap { position: absolute; border: 2px solid #e8ecff; border-radius: 3px; box-shadow: 0 2px 0 #0008; line-height: 0; }
+.pt-nametab { position: absolute; background: #0c1550; border: 2px solid #e8ecff; border-radius: 6px; line-height: 0; }
+.pt-caret { position: absolute; color: #fff; font-size: 14px; animation: blink 1s steps(2) infinite; }
+.pt-pages { position: absolute; right: 26px; bottom: 4px; font-size: 10px; color: #aab4e8; }
+.pt-choice { position: absolute; display: flex; align-items: center; right: 8px; text-align: left; border-radius: 4px; }
+.pt-choice.on { background: #ffffff1c; }
+.pt-cursor { color: #fff; font-size: 13px; display: inline-block; text-align: center; }
+.pt-nochoice { padding: 10px; color: #cfd4e2; font-size: 12px; }
+.pt-endmsg { position: absolute; left: 8px; right: 8px; bottom: 8px; background: #161922ee; border: 1px solid #3a4054; color: #cfd4e2; padding: 12px; border-radius: 8px; text-align: center; }
+.mini-boxes { display: flex; flex-direction: column; gap: 6px; }
+.mini-box { background: #182a7e; border: 2px solid #e8ecff; border-radius: 5px; padding: 4px 6px; line-height: 0; display: flex; flex-direction: column; gap: 2px; width: fit-content; max-width: 100%; overflow: hidden; }
+.fonts-view { flex: 1; overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+.font-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.font-sample { background: #182a7e; border: 2px solid #e8ecff; border-radius: 6px; padding: 10px 12px; line-height: 0; overflow: auto; }
+.charmap { display: flex; flex-wrap: wrap; gap: 2px; background: #0c0e14; padding: 8px; border-radius: 6px; line-height: 0; }

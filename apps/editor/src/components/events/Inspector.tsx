@@ -8,6 +8,7 @@ import { collectNames, useProject } from "../../projectStore";
 import { portraitSlot, useAssets } from "../../assetStore";
 import { PortraitCanvas } from "../PortraitCanvas";
 import { KIND_META } from "./nodes";
+import { DIALOGUE_LINES, DIALOGUE_TEXT_WIDTH, PmdLines, useFont, useWrapped } from "../PmdText";
 
 const ACTION_LABELS: Record<ActionType, string> = {
   setFlag: "🚩 Set flag", setVar: "🔢 Set variable", giveItem: "🎁 Give item", takeItem: "🎒 Take item",
@@ -58,6 +59,7 @@ export function Inspector(props: { node: StoryNode | null; warnings: GraphWarnin
           <Field label="Text">
             <textarea className="inp ta" rows={5} value={d.text} placeholder="What do they say?" onChange={(e) => set({ ...d, text: e.target.value }, "text")} />
           </Field>
+          <PassagePreview text={d.text} name={d.speaker?.name ?? ""} />
           <ActionsEditor title="Before the text shows" actions={d.actions} onChange={(actions) => set({ ...d, actions })} nodeId={n.id} />
         </>
       )}
@@ -304,5 +306,27 @@ function ActionsEditor(props: { title: string; actions: Action[]; onChange(a: Ac
       ))}
       <button className="btn small-btn" onClick={() => props.onChange([...actions, defaultAction("setFlag")])}>＋ Add action</button>
     </>
+  );
+}
+
+/** The passage as the game will show it: ROM font, real box width, split into 3-line boxes. */
+function PassagePreview(props: { text: string; name: string }) {
+  const font = useFont();
+  const lines = useWrapped(props.text || " ", DIALOGUE_TEXT_WIDTH);
+  if (!font) return null;
+  const pages: string[][] = [];
+  for (let i = 0; i < lines.length; i += DIALOGUE_LINES) pages.push(lines.slice(i, i + DIALOGUE_LINES));
+  return (
+    <div className="field">
+      <label>In-game preview{pages.length > 1 ? ` · ${pages.length} boxes` : ""}</label>
+      <div className="mini-boxes">
+        {pages.map((pg, i) => (
+          <div key={i} className="mini-box">
+            {i === 0 && props.name && <PmdLines lines={[props.name]} color="#ffd94a" scale={1} />}
+            <PmdLines lines={pg} scale={1} width={DIALOGUE_TEXT_WIDTH} minLines={DIALOGUE_LINES} />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

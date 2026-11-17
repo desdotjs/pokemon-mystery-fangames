@@ -2,8 +2,9 @@ import { useMemo, useState } from "react";
 import { slotName, type RomDir } from "@sky/rom";
 import type { PortraitEntry } from "../romApi";
 import { PortraitCanvas } from "./PortraitCanvas";
+import { PmdLines, PmdText, type FontName } from "./PmdText";
 
-type View = "portraits" | "files";
+type View = "portraits" | "fonts" | "files";
 
 export function AssetBrowser(props: { tree: RomDir; portraits: PortraitEntry[] }) {
   const [view, setView] = useState<View>("portraits");
@@ -15,6 +16,7 @@ export function AssetBrowser(props: { tree: RomDir; portraits: PortraitEntry[] }
           <div className={view === "portraits" ? "sel" : ""} onClick={() => setView("portraits")}>
             🙂 Portraits <span className="chip">{props.portraits.length}</span>
           </div>
+          <div className={view === "fonts" ? "sel" : ""} onClick={() => setView("fonts")}>🔤 Fonts <span className="chip">3</span></div>
           <div className={view === "files" ? "sel" : ""} onClick={() => setView("files")}>📁 ROM files</div>
           <div className="disabled">🐾 Sprites <span className="chip">M2</span></div>
           <div className="disabled">🗺 Maps <span className="chip">M3</span></div>
@@ -22,7 +24,7 @@ export function AssetBrowser(props: { tree: RomDir; portraits: PortraitEntry[] }
           <div className="disabled">＋ Import your own <span className="chip">M10</span></div>
         </div>
       </aside>
-      {view === "portraits" ? <Portraits list={props.portraits} /> : <FileTree root={props.tree} />}
+      {view === "portraits" ? <Portraits list={props.portraits} /> : view === "fonts" ? <Fonts /> : <FileTree root={props.tree} />}
     </>
   );
 }
@@ -141,4 +143,38 @@ function FileTree(props: { root: RomDir }) {
       </div>
     </section>
   );
+}
+
+const FONT_INFO: { name: FontName; title: string; file: string; about: string }[] = [
+  { name: "dialogue", title: "Dialogue", file: "FONT/kanji.dat", about: "The main text font: dialogue boxes, menus, item descriptions." },
+  { name: "bold", title: "Bold", file: "FONT/kanji_b.dat", about: "Smooth bold font the game uses for titles and headings." },
+  { name: "unown", title: "Unown", file: "FONT/unknown.dat", about: "The Unown alphabet. Same letters, Unown shapes." },
+];
+
+function Fonts() {
+  const [sample, setSample] = useState("Welcome to the world of Pokémon! ♂♀ 0123456789");
+  const all = Array.from({ length: 224 }, (_, i) => String.fromCharCode(i + 32 === 0x7f ? 0x20 : i + 32)).join("");
+  return (
+    <section className="content">
+      <div className="toolbar">
+        <b>Fonts</b>
+        <input className="inp grow" value={sample} onChange={(e) => setSample(e.target.value)} placeholder="Type to preview…" />
+      </div>
+      <div className="fonts-view">
+        {FONT_INFO.map((f) => (
+          <div key={f.name} className="font-card">
+            <div className="row2"><b>{f.title}</b><span className="muted small">{f.file}</span><span className="sp" /><span className="muted small">{f.about}</span></div>
+            <div className="font-sample"><PmdText text={sample || " "} font={f.name} scale={3} /></div>
+            <div className="charmap"><PmdLines lines={[...chunk(all, 32), "♪～→←↑↓"]} font={f.name} scale={2} /></div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function chunk(s: string, n: number): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < s.length; i += n) out.push(s.slice(i, i + n));
+  return out;
 }

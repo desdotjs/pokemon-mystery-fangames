@@ -1,4 +1,4 @@
-import { Kao, NdsRom, RomFormatError, SUPPORTED_GAME_CODES, pokemonNames, readStringTable, type RomDir } from "@sky/rom";
+import { Kao, NdsRom, RomFormatError, SUPPORTED_GAME_CODES, pokemonNames, readSir0Font, readStringTable, type BitmapFont, type RomDir } from "@sky/rom";
 
 export interface PortraitEntry {
   entry: number;
@@ -8,8 +8,15 @@ export interface PortraitEntry {
 }
 
 export type LoadResult =
-  | { ok: true; title: string; gameCode: string; gameName: string; revision: number; sha1: string; fileCount: number; tree: RomDir; portraits: PortraitEntry[] }
+  | { ok: true; title: string; gameCode: string; gameName: string; revision: number; sha1: string; fileCount: number; tree: RomDir; portraits: PortraitEntry[]; fonts: GameFonts }
   | { ok: false; error: string };
+
+/** The game's three 12x12 text fonts, read from FONT/. */
+export interface GameFonts {
+  dialogue: BitmapFont; // kanji.dat — dialogue boxes
+  bold: BitmapFont; // kanji_b.dat — titles and menus
+  unown: BitmapFont; // unknown.dat — Unown alphabet
+}
 
 let rom: NdsRom | null = null;
 let kao: Kao | null = null;
@@ -52,6 +59,11 @@ export const romApi = {
         fileCount: r.fileCount,
         tree: r.root,
         portraits,
+        fonts: {
+          dialogue: readSir0Font(r.readFile("FONT/kanji.dat")),
+          bold: readSir0Font(r.readFile("FONT/kanji_b.dat")),
+          unown: readSir0Font(r.readFile("FONT/unknown.dat")),
+        },
       };
     } catch (e) {
       console.error("[sky-maker] ROM load failed", e);

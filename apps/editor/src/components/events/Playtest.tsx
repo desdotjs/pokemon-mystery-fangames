@@ -3,7 +3,12 @@ import { StoryRunner, emptyState, type StoryState, type StoryStep } from "@sky/e
 import type { Action, StoryGraph } from "@sky/schema";
 import { portraitSlot, useAssets } from "../../assetStore";
 import { PortraitCanvas } from "../PortraitCanvas";
+import { DIALOGUE_LINES, DIALOGUE_TEXT_WIDTH, PmdLines, useFont, useWrapped } from "../PmdText";
+import { measureText } from "@sky/rom";
 import { describeAction } from "./nodes";
+
+/** DS screen is 256x192; everything below is laid out in native pixels and drawn at 2x. */
+const S = 2;
 
 const END_TEXT: Record<string, string> = {
   end: "The conversation ended.",
@@ -21,7 +26,8 @@ export function Playtest(props: { graph: StoryGraph; startNodeId: string | null;
   const [live, setLive] = useState<StoryState | null>(null);
   const runner = useRef<StoryRunner | null>(null);
   const sink = useRef<string[]>([]);
-  const typing = useRef<{ skip(): boolean }>({ skip: () => false });
+  /** The dialogue box consumes a press to finish typing or turn the page; returns true if it did. */
+  const box = useRef<{ press(): boolean; move(d: number): void; pick(): void }>({ press: () => false, move: () => {}, pick: () => {} });
 
   useEffect(() => {
     const state: StoryState = structuredClone(setup);
@@ -58,12 +64,13 @@ export function Playtest(props: { graph: StoryGraph; startNodeId: string | null;
       const go = e.key === "Enter" || e.key === " " || e.key === "z";
       if (go) e.preventDefault(); // don't re-click a focused button (e.g. Restart)
       if (step?.type === "text" && go) {
-        if (typing.current.skip()) return; // first press finishes the typewriter
+        if (box.current.press()) return; // finish typing / next page first
         advance((r) => r.next());
       }
       if (step?.type === "choice") {
-        const n = Number(e.key);
-        const o = step.options[n - 1];
+        if (go) box.current.pick();
+        if (e.key === "ArrowUp" || e.key === "ArrowDown") (e.preventDefault(), box.current.move(e.key === "ArrowUp" ? -1 : 1));
+        const o = step.options[Number(e.key) - 1];
         if (o) advance((r) => r.choose(o.id));
       }
     };
@@ -88,11 +95,11 @@ export function Playtest(props: { graph: StoryGraph; startNodeId: string | null;
         </div>
         <div className="pt-body">
           <div className="pt-screen-wrap">
-            <div className="pt-screen">
+            <div className="pt-screen" style={{ width: 256 * S, height: 192 * S }}>
               <div className="pt-scene muted">Map preview comes with the Map editor (M4–M5)</div>
-              {step && <DialogueBox step={step} typing={typing} onNext={() => advance((r) => r.next())} onChoose={(id) => advance((r) => r.choose(id))} />}
+              {step && <DialogueScreen key={runId} step={step} box={box} onNext={() => advance((r) => r.next())} onChoose={(id) => advance((r) => r.choose(id))} />}
             </div>
-            <div className="muted small">Enter / Space / Z to continue · number keys pick a choice</div>
+            <div className="muted small">Enter / Space / Z to continue · ↑↓ or number keys to choose · text uses your ROM's font</div>
           </div>
           <div className="pt-side">
             <div className="sub">Starting state <span className="muted small">(used on every restart)</span></div>
@@ -108,61 +115,148 @@ export function Playtest(props: { graph: StoryGraph; startNodeId: string | null;
   );
 }
 
-function DialogueBox(props: { step: StoryStep; typing: React.MutableRefObject<{ skip(): boolean }>; onNext(): void; onChoose(id: string): void }) {
+type BoxRef = React.MutableRefObject<{ press(): boolean; move(d: number): void; pick(): void }>;
+
+function DialogueScreen(props: { step: StoryStep; box: BoxRef; onNext(): void; onChoose(id: string): void }) {
   const s = props.step;
-  const entry = useAssets((st) => (s.type === "text" && s.speaker?.monsterId != null ? st.byMonster.get(s.speaker.monsterId) : undefined));
-  const { shown, skip } = useTypewriter(s.type === "text" ? s.text : "", s);
-  props.typing.current = { skip };
   if (s.type === "end") {
-    return <div className="pt-box pt-end">{END_TEXT[s.reason]}</div>;
+    props.box.current = { press: () => false, move: () => {}, pick: () => {} };
+    return <div className="pt-endmsg">{END_TEXT[s.reason]}</div>;
   }
-  if (s.type === "choice") {
-    return (
-      <div className="pt-box">
-        {s.prompt && <div className="pt-prompt">{s.prompt}</div>}
-        {s.options.length ? s.options.map((o, i) => (
-          <button key={o.id} className="pt-opt" onClick={() => props.onChoose(o.id)}>
-            <span className="muted">{i + 1}.</span> {o.label || "(empty option)"}
-          </button>
-        )) : <div className="muted">No options are visible with the current flags.</div>}
-      </div>
-    );
-  }
-  const slot = portraitSlot(entry, s.emotion);
-  const done = shown.length >= s.text.length;
+  if (s.type === "choice") return <ChoiceMenu step={s} box={props.box} onChoose={props.onChoose} />;
+  return <TextBox step={s} box={props.box} onNext={props.onNext} />;
+}
+
+/** Box frame: native x 4..252, 3 lines tall, sitting on the bottom of the screen. */
+const BOX = { x: 4, w: 248, h: DIALOGUE_LINES * 15 + 12 };
+const BOX_Y = 192 - 4 - BOX.h;
+
+function Frame(props: { x: number; y: number; w: number; h: number; children?: React.ReactNode; onClick?(): void }) {
   return (
-    <div className="pt-box" onClick={() => (skip() ? null : props.onNext())}>
-      {entry && slot != null && <PortraitCanvas key={`${entry.entry}-${slot}`} entry={entry.entry} slot={slot} size={80} className="pt-portrait" />}
-      <div className="pt-text">
-        {s.speaker?.name && <div className="pt-name">{s.speaker.name}</div>}
-        <div>{shown}{done && <span className="pt-caret">▼</span>}</div>
-      </div>
+    <div className="pt-frame" onClick={props.onClick} style={{ left: props.x * S, top: props.y * S, width: props.w * S, height: props.h * S }}>
+      {props.children}
     </div>
   );
 }
 
-/** Reveals text letter by letter. `skip()` shows it all and returns true if it was still typing. */
-function useTypewriter(text: string, key: unknown): { shown: string; skip(): boolean } {
+function TextBox(props: { step: Extract<StoryStep, { type: "text" }>; box: BoxRef; onNext(): void }) {
+  const s = props.step;
+  const entry = useAssets((st) => (s.speaker?.monsterId != null ? st.byMonster.get(s.speaker.monsterId) : undefined));
+  const lines = useWrapped(s.text, DIALOGUE_TEXT_WIDTH);
+  const pages = useMemo(() => {
+    const out: string[][] = [];
+    for (let i = 0; i < lines.length; i += DIALOGUE_LINES) out.push(lines.slice(i, i + DIALOGUE_LINES));
+    return out.length ? out : [[""]];
+  }, [lines]);
+  const [page, setPage] = useState(0);
+  useEffect(() => setPage(0), [s]);
+  const pageLines = pages[Math.min(page, pages.length - 1)]!;
+  const total = pageLines.reduce((a, l) => a + [...l].length + 1, 0);
+  const { n, skip } = useTypewriter(total, `${s.nodeId}:${page}:${s.text}`);
+  const done = n >= total;
+  const press = () => {
+    if (skip()) return true;
+    if (page < pages.length - 1) return setPage(page + 1), true;
+    return false;
+  };
+  props.box.current = { press, move: () => {}, pick: () => {} };
+  const slot = portraitSlot(entry, s.emotion);
+  const name = s.speaker?.name ?? "";
+  const nameW = useNameWidth(name);
+
+  return (
+    <>
+      {entry && slot != null && (
+        <div className="pt-portrait-wrap" style={{ left: BOX.x * S, top: (BOX_Y - 46) * S }}>
+          <PortraitCanvas key={`${entry.entry}-${slot}`} entry={entry.entry} slot={slot} size={40 * S} />
+        </div>
+      )}
+      <Frame x={BOX.x} y={BOX_Y} w={BOX.w} h={BOX.h} onClick={() => (press() ? null : props.onNext())}>
+        <div style={{ position: "absolute", left: 8 * S, top: 5 * S }}>
+          <PmdLines lines={pageLines} maxChars={n} scale={S} width={DIALOGUE_TEXT_WIDTH} minLines={DIALOGUE_LINES} />
+        </div>
+        {done && <span className="pt-caret" style={{ right: 6 * S, bottom: 3 * S }}>{page < pages.length - 1 ? "▼" : "▼"}</span>}
+        {pages.length > 1 && <span className="pt-pages">{page + 1}/{pages.length}</span>}
+      </Frame>
+      {name && (
+        <div className="pt-nametab" style={{ left: (BOX.x + (entry ? 46 : 6)) * S, top: (BOX_Y - 9) * S, padding: `${1 * S}px ${4 * S}px` }}>
+          <PmdLines lines={[name]} color="#ffd94a" scale={S} width={nameW} />
+        </div>
+      )}
+    </>
+  );
+}
+
+function useNameWidth(name: string): number {
+  const font = useFont();
+  return font ? measureText(font, name) : name.length * 6;
+}
+
+function ChoiceMenu(props: { step: Extract<StoryStep, { type: "choice" }>; box: BoxRef; onChoose(id: string): void }) {
+  const s = props.step;
+  const font = useFont();
+  const [sel, setSel] = useState(0);
+  useEffect(() => setSel(0), [s]);
+  const labels = s.options.map((o) => o.label || "(empty option)");
+  const widest = font ? Math.max(40, ...labels.map((l) => measureText(font, l))) : 80;
+  const w = Math.min(240, widest + 26);
+  const h = Math.max(1, labels.length) * 15 + 10;
+  const promptLines = useWrapped(s.prompt, DIALOGUE_TEXT_WIDTH);
+  props.box.current = {
+    press: () => false,
+    move: (d) => setSel((x) => (labels.length ? (x + d + labels.length) % labels.length : 0)),
+    pick: () => {
+      const o = s.options[sel];
+      if (o) props.onChoose(o.id);
+    },
+  };
+  return (
+    <>
+      {s.prompt && (
+        <Frame x={BOX.x} y={BOX_Y} w={BOX.w} h={BOX.h}>
+          <div style={{ position: "absolute", left: 8 * S, top: 5 * S }}>
+            <PmdLines lines={promptLines.slice(0, DIALOGUE_LINES)} scale={S} width={DIALOGUE_TEXT_WIDTH} />
+          </div>
+        </Frame>
+      )}
+      <Frame x={252 - w} y={(s.prompt ? BOX_Y - 4 : 188) - h} w={w} h={h}>
+        {labels.length ? labels.map((l, i) => (
+          <button
+            key={s.options[i]!.id}
+            className={"pt-choice" + (i === sel ? " on" : "")}
+            style={{ top: (5 + i * 15) * S, left: 4 * S, height: 15 * S }}
+            onMouseEnter={() => setSel(i)}
+            onClick={() => props.onChoose(s.options[i]!.id)}
+          >
+            <span className="pt-cursor" style={{ width: 12 * S }}>{i === sel ? "▶" : ""}</span>
+            <PmdLines lines={[l]} scale={S} />
+          </button>
+        )) : <div className="pt-nochoice">No options are visible with the current flags.</div>}
+      </Frame>
+    </>
+  );
+}
+
+/** Reveals `total` characters over time. `skip()` jumps to the end and returns true if it was still typing. */
+function useTypewriter(total: number, key: string): { n: number; skip(): boolean } {
   const [n, setN] = useState(0);
   const nRef = useRef(0);
   useEffect(() => {
     nRef.current = 0;
     setN(0);
-    if (!text) return;
     const t = setInterval(() => {
-      if (nRef.current >= text.length) return clearInterval(t);
+      if (nRef.current >= total) return clearInterval(t);
       nRef.current += 1;
       setN(nRef.current);
-    }, 18);
+    }, 16);
     return () => clearInterval(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [key, total]);
   return {
-    shown: text.slice(0, n),
+    n,
     skip() {
-      if (nRef.current >= text.length) return false;
-      nRef.current = text.length;
-      setN(text.length);
+      if (nRef.current >= total) return false;
+      nRef.current = total;
+      setN(total);
       return true;
     },
   };
