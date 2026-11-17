@@ -187,8 +187,8 @@ code { background: #232733; padding: 1px 5px; border-radius: 4px; }
 .pt-frame { position: absolute; background: #182a7ef0; border: 2px solid #e8ecff; border-radius: 6px; box-shadow: inset 0 0 0 2px #0c1550, 0 2px 0 #0008; cursor: pointer; }
 .pt-portrait-wrap { position: absolute; border: 2px solid #e8ecff; border-radius: 3px; box-shadow: 0 2px 0 #0008; line-height: 0; }
 .pt-nametab { position: absolute; background: #0c1550; border: 2px solid #e8ecff; border-radius: 6px; line-height: 0; }
-.pt-caret { position: absolute; color: #fff; font-size: 14px; animation: blink 1s steps(2) infinite; }
-.pt-pages { position: absolute; right: 26px; bottom: 4px; font-size: 10px; color: #aab4e8; }
+.pt-caret { position: absolute; color: #fff; font-size: 12px; line-height: 1; animation: blink 1s steps(2) infinite; }
+.pt-pages { position: absolute; right: 8px; top: 2px; font-size: 10px; color: #aab4e8; }
 .pt-choice { position: absolute; display: flex; align-items: center; right: 8px; text-align: left; border-radius: 4px; }
 .pt-choice.on { background: #ffffff1c; }
 .pt-cursor { color: #fff; font-size: 13px; display: inline-block; text-align: center; }

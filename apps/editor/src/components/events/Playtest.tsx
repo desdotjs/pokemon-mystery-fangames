@@ -128,8 +128,10 @@ function DialogueScreen(props: { step: StoryStep; box: BoxRef; onNext(): void; o
 }
 
 /** Box frame: native x 4..252, 3 lines tall, sitting on the bottom of the screen. */
-const BOX = { x: 4, w: 248, h: DIALOGUE_LINES * 15 + 12 };
+const BOX = { x: 4, w: 248, h: DIALOGUE_LINES * 15 + 16 };
 const BOX_Y = 192 - 4 - BOX.h;
+/** Space between the box's top border and the portrait / name tab sitting above it (native px). */
+const GAP = 2;
 
 function Frame(props: { x: number; y: number; w: number; h: number; children?: React.ReactNode; onClick?(): void }) {
   return (
@@ -167,7 +169,7 @@ function TextBox(props: { step: Extract<StoryStep, { type: "text" }>; box: BoxRe
   return (
     <>
       {entry && slot != null && (
-        <div className="pt-portrait-wrap" style={{ left: BOX.x * S, top: (BOX_Y - 46) * S }}>
+        <div className="pt-portrait-wrap" style={{ left: BOX.x * S, bottom: (192 - BOX_Y + GAP) * S }}>
           <PortraitCanvas key={`${entry.entry}-${slot}`} entry={entry.entry} slot={slot} size={40 * S} />
         </div>
       )}
@@ -175,11 +177,11 @@ function TextBox(props: { step: Extract<StoryStep, { type: "text" }>; box: BoxRe
         <div style={{ position: "absolute", left: 8 * S, top: 5 * S }}>
           <PmdLines lines={pageLines} maxChars={n} scale={S} width={DIALOGUE_TEXT_WIDTH} minLines={DIALOGUE_LINES} />
         </div>
-        {done && <span className="pt-caret" style={{ right: 6 * S, bottom: 3 * S }}>{page < pages.length - 1 ? "▼" : "▼"}</span>}
+        {done && <span className="pt-caret" style={{ right: 4 * S, bottom: 0 }}>▼</span>}
         {pages.length > 1 && <span className="pt-pages">{page + 1}/{pages.length}</span>}
       </Frame>
       {name && (
-        <div className="pt-nametab" style={{ left: (BOX.x + (entry ? 46 : 6)) * S, top: (BOX_Y - 9) * S, padding: `${1 * S}px ${4 * S}px` }}>
+        <div className="pt-nametab" style={{ left: (BOX.x + (entry && slot != null ? 40 + 2 + GAP : 0)) * S, bottom: (192 - BOX_Y + GAP) * S, padding: `${1 * S}px ${4 * S}px` }}>
           <PmdLines lines={[name]} color="#ffd94a" scale={S} width={nameW} />
         </div>
       )}
