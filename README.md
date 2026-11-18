@@ -6,6 +6,8 @@ A browser-based engine and RPG Maker XP–style editor for making new Pokémon M
 - The ROM never leaves your machine. Assets are extracted locally and cached in your browser.
 - **This repo contains no ROM and no ROM-derived assets.** You need your own copy of the game to use it.
 
+**Try it:** https://desdotjs.github.io/pokemon-mystery-fangames/ (bring your own Explorers of Sky US ROM)
+
 ## New here?
 Read **[GETTING_STARTED.md](GETTING_STARTED.md)**: a plain-language guide to running Sky Maker, making a game, and playing shared games. No coding needed.
 

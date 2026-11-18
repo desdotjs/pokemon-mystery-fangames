@@ -22,7 +22,7 @@ That's it.
 ## Option 1: Use the website (easiest)
 
 1. Open Chrome or Edge.
-2. Go to the Sky Maker website. *(The link will be posted here when it's live.)*
+2. Go to the Sky Maker website: **https://desdotjs.github.io/pokemon-mystery-fangames/**
 3. When it asks for your ROM, drag your `.nds` file onto the page, or click **Choose file** and find it.
 4. Wait for the progress bar to finish. The first time takes a minute or two. After that, it's instant.
 5. You're in.
